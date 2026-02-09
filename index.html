@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aurora Oudoor</title>
+    <!-- Alpine JS -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- My Css -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <!-- My Javascript -->
+    <script src="assets/js/app.js"></script>
+  </head>
+  <body x-data="app()">
+    <!-- NAVBAR -->
+    <nav class="navbar" x-data="{ open: false }">
+      <div class="nav-container">
+        <!-- Logo -->
+        <div class="logo">
+          <img src="assets/img/logo.png" alt="Aurora Outdoor" />
+          <!-- <span>Aurora Outdoor</span> -->
+        </div>
+
+        <!-- Desktop Menu -->
+        <ul class="nav-menu desktop">
+          <li><a href="#products">Daftar Alat</a></li>
+          <li><a href="#booking">Booking</a></li>
+          <li>
+            <a href="https://wa.me/628XXXXXXXXX" class="btn-wa"> WhatsApp </a>
+          </li>
+        </ul>
+
+        <!-- Hamburger -->
+        <button class="hamburger" @click="open = !open">☰</button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <ul class="nav-menu mobile" x-show="open" @click.outside="open = false">
+        <li><a href="#products">Daftar Alat</a></li>
+        <li><a href="#booking">Booking</a></li>
+        <li>
+          <a href="https://wa.me/628XXXXXXXXX" class="btn-wa"> WhatsApp </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <h1>
+          Sewa Alat Camping<br />
+          Mudah & Terpercaya<br />
+          di Cianjur
+        </h1>
+
+        <p>
+          Alat lengkap, bersih, siap pakai.<br />
+          Booking cepat via WhatsApp.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#booking" class="btn-primary"> Booking Sekarang </a>
+          <a href="https://wa.me/628XXXXXXXXX" class="btn-secondary"> Chat WhatsApp </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Keunggulan  -->
+    <!-- KEUNGGULAN -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header">
+          <h2>Kenapa Aurora Outdoor?</h2>
+          <p>Kami menyediakan perlengkapan camping yang siap pakai, bersih, dan terpercaya untuk perjalananmu.</p>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🧰</div>
+            <h3>Alat Terawat</h3>
+            <p>Semua alat dibersihkan dan dicek sebelum dan sesudah disewa.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">💰</div>
+            <h3>Harga Transparan</h3>
+            <p>Harga jelas per hari, tanpa biaya tersembunyi.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🏔️</div>
+            <h3>Dipercaya Pendaki</h3>
+            <p>Sudah melayani banyak pendaki di wilayah Cianjur dan sekitarnya.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Respon Cepat</h3>
+            <p>Booking dan konfirmasi cepat langsung melalui WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Daftar Alat Dana Data  Pesanan -->
+    <!-- DAFTAR ALAT & PESANAN -->
+    <section class="products" id="products" x-data="rentalApp">
+      <div class="container">
+        <div class="section-header">
+          <h2>Daftar Alat Camping</h2>
+          <p>Pilih alat dan tentukan durasi sewa.</p>
+        </div>
+        <!-- FILTER -->
+        <div class="filter">
+          <template x-for="cat in categories" :key="cat.key">
+            <button @click="activeCategory = cat.key" :class="activeCategory === cat.key && 'active'" x-text="cat.label"></button>
+          </template>
+        </div>
+
+        <!-- DURASI SEWA
+        <div class="rental-days">
+          <label>Durasi Sewa (Hari)</label>
+          <input type="number" min="1" x-model.number="days" />
+        </div> -->
+
+        <!-- GRID PRODUK -->
+        <div class="product-grid">
+          <template x-for="product in filteredProducts()" :key="product.id">
+            <div class="product-card">
+              <img :src="product.img" :alt="product.name" />
+
+              <h3 x-text="product.name"></h3>
+
+              <p class="price">Rp <span x-text="product.price.toLocaleString()"></span> / hari</p>
+
+              <button class="btn-add" @click="addToCart(product)">+ Tambah</button>
+            </div>
+          </template>
+        </div>
+
+        <!-- PESANAN -->
+        <!-- PESANAN -->
+        <!-- ================== PESANAN ================== -->
+        <!-- ================== FLOATING CART ================== -->
+        <div class="floating-cart">
+          <div class="cart-info">
+            <strong x-text="`${cart.length} Item`"></strong>
+            <small>Sewa <span x-text="days"></span> hari</small>
+          </div>
+
+          <button class="cart-btn">Pesan via WhatsApp</button>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

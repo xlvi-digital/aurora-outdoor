@@ -105,53 +105,110 @@
       </div>
     </section>
 
-    <!-- Daftar Alat Dana Data  Pesanan -->
-    <!-- DAFTAR ALAT & PESANAN -->
-    <section class="products" id="products" x-data="rentalApp">
-      <div class="container">
-        <div class="section-header">
-          <h2>Daftar Alat Camping</h2>
-          <p>Pilih alat dan tentukan durasi sewa.</p>
-        </div>
-        <!-- FILTER -->
-        <div class="filter">
-          <template x-for="cat in categories" :key="cat.key">
-            <button @click="activeCategory = cat.key" :class="activeCategory === cat.key && 'active'" x-text="cat.label"></button>
-          </template>
-        </div>
-
-        <!-- DURASI SEWA
-        <div class="rental-days">
-          <label>Durasi Sewa (Hari)</label>
-          <input type="number" min="1" x-model.number="days" />
-        </div> -->
-
-        <!-- GRID PRODUK -->
-        <div class="product-grid">
-          <template x-for="product in filteredProducts()" :key="product.id">
-            <div class="product-card">
-              <img :src="product.img" :alt="product.name" />
-
-              <h3 x-text="product.name"></h3>
-
-              <p class="price">Rp <span x-text="product.price.toLocaleString()"></span> / hari</p>
-
-              <button class="btn-add" @click="addToCart(product)">+ Tambah</button>
-            </div>
-          </template>
-        </div>
-
-        <!-- PESANAN -->
-        <!-- PESANAN -->
-        <!-- ================== PESANAN ================== -->
-        <!-- ================== FLOATING CART ================== -->
-        <div class="floating-cart">
-          <div class="cart-info">
-            <strong x-text="`${cart.length} Item`"></strong>
-            <small>Sewa <span x-text="days"></span> hari</small>
+    <section class="products" :class="animatingId === product.id ? 'product-animate' : ''" id="products" x-data="rentalApp">
+      <div class="container rental-wrapper">
+        <!-- LEFT SIDE -->
+        <div>
+          <div class="section-header">
+            <h2>Daftar Alat Camping</h2>
+            <p>Pilih alat dan tentukan durasi sewa.</p>
           </div>
 
-          <button class="cart-btn">Pesan via WhatsApp</button>
+          <!-- FILTER -->
+          <div class="filter">
+            <template x-for="cat in categories" :key="cat.key">
+              <button @click="activeCategory = cat.key" :class="activeCategory === cat.key ? 'active' : ''" x-text="cat.label"></button>
+            </template>
+          </div>
+
+          <!-- GRID -->
+          <div class="product-grid">
+            <template x-for="product in filteredProducts()" :key="product.id">
+              <div class="product-card">
+                <img :src="product.img" :alt="product.name" />
+                <h3 x-text="product.name"></h3>
+                <p class="price">Rp <span x-text="product.price.toLocaleString()"></span> / hari</p>
+                <button class="btn-add" @click="addToCart(product)">+ Tambah</button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE (STICKY CART) -->
+        <aside class="cart-area">
+          <div class="cart-card" :class="cartPulse ? 'cart-pulse' : ''" x-transition>
+            <h3>Ringkasan Booking</h3>
+
+            <div class="cart-list">
+              <template x-if="cart.length === 0">
+                <p class="empty-cart">Belum ada alat dipilih</p>
+              </template>
+
+              <template x-for="item in cart" :key="item.id">
+                <div class="cart-item">
+                  <div class="cart-info">
+                    <strong x-text="item.name"></strong>
+                    <small x-text="`Rp ${item.price.toLocaleString()} / hari`"></small>
+                  </div>
+
+                  <div class="qty-control">
+                    <button @click="decreaseQty(item)">−</button>
+                    <span x-text="item.qty"></span>
+                    <button @click="increaseQty(item)">+</button>
+                  </div>
+
+                  <!-- REMOVE BUTTON -->
+                  <button class="remove-btn" @click="removeItem(item.id)">✕</button>
+                </div>
+              </template>
+            </div>
+
+            <div class="cart-total" x-show="cart.length > 0">
+              <strong>Total</strong>
+              <span x-text="`Rp ${totalPrice.toLocaleString()}`"></span>
+            </div>
+
+            <button class="booking-btn" x-show="cart.length > 0" @click="showBookingModal = true">Lanjut Booking</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- MODAL -->
+      <div x-show="showBookingModal" x-transition class="booking-overlay">
+        <div class="booking-modal" @click.away="showBookingModal = false">
+          <h3>Form Booking</h3>
+
+          <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" x-model="booking.name" />
+          </div>
+
+          <div class="form-group">
+            <label>No WhatsApp</label>
+            <input type="number" x-model="booking.phone" />
+          </div>
+
+          <div class="form-group">
+            <label>Tanggal Mulai</label>
+            <input type="date" x-model="booking.startDate" @change="calculateDays()" />
+          </div>
+
+          <div class="form-group">
+            <label>Tanggal Selesai</label>
+            <input type="date" x-model="booking.endDate" @change="calculateDays()" />
+          </div>
+
+          <div class="rental-info" x-show="days > 0">
+            <span>Durasi</span>
+            <strong x-text="days + ' Hari'"></strong>
+          </div>
+
+          <div class="cart-total" x-show="days > 0">
+            <strong>Total Bayar</strong>
+            <span x-text="`Rp ${totalPrice.toLocaleString()}`"></span>
+          </div>
+
+          <button class="confirm-btn" @click="validateAndSend()">Konfirmasi Booking</button>
         </div>
       </div>
     </section>

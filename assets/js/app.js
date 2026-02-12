@@ -1,53 +1,176 @@
 document.addEventListener("alpine:init", () => {
   Alpine.data("rentalApp", () => ({
-    // ===== STATE =====
     activeCategory: "all",
     days: 1,
     cart: [],
 
     products: [
-      { id: 1, name: "Tenda Dome", price: 30000, category: "tenda", img: "assets/img/product/tenda.png" },
-      { id: 2, name: "Kompor Portable", price: 15000, category: "makan", img: "assets/img/product/tenda1.png" },
-      { id: 3, name: "Sleeping Bag", price: 20000, category: "tidur", img: "assets/img/product/tenda2.png" },
-      { id: 4, name: "Headlamp", price: 10000, category: "aksesoris", img: "assets/img/product/tenda3.png" },
-      // { id: 5, name: 'Matras', price: 10000, category: 'tidur' },
-      // { id: 6, name: 'Nesting Set', price: 12000, category: 'makan' },
+      { id: 1, name: "Tenda Dome", price: 30000, img: "assets/img/product/tenda.png", category: "tenda" },
+      { id: 2, name: "Kompor Portable", price: 15000, img: "assets/img/product/tenda1.png", category: "makan" },
+      { id: 3, name: "Sleeping Bag", price: 20000, img: "assets/img/product/tenda2.png", category: "tidur" },
+      { id: 4, name: "Headlamp", price: 10000, img: "assets/img/product/tenda3.png", category: "aksesoris" },
     ],
 
-    categories: [
-      { key: "all", label: "Semua" },
-      { key: "tenda", label: "Tenda" },
-      { key: "makan", label: "Alat Makan" },
-      { key: "tidur", label: "Alat Tidur" },
-      { key: "aksesoris", label: "Aksesoris" },
-      { key: "pribadi", label: "Pribadi" },
-    ],
+    showBookingModal: false,
 
-    // ===== METHODS =====
+    booking: {
+      name: "",
+      phone: "",
+      startDate: "",
+      endDate: "",
+      note: "",
+    },
+
+    // =====================
+    // FILTER
+    // =====================
     filteredProducts() {
       if (this.activeCategory === "all") return this.products;
       return this.products.filter((p) => p.category === this.activeCategory);
     },
 
+    // =====================
+    // TAMBAH KE CART
+    // =====================
     addToCart(product) {
-      this.cart.push(product);
+      const existing = this.cart.find((item) => item.id === product.id);
+
+      if (existing) {
+        existing.qty++;
+      } else {
+        this.cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
+        });
+      }
+      // Animasi product
+      this.animatingId = product.id;
+      setTimeout(() => {
+        this.animatingId = null;
+      }, 400);
+
+      // Animasi cart pulse
+      this.cartPulse = true;
+      setTimeout(() => {
+        this.cartPulse = false;
+      }, 500);
     },
 
-    removeFromCart(index) {
-      this.cart.splice(index, 1);
+    // =====================
+    // TAMBAH QTY
+    // =====================
+    increaseQty(item) {
+      item.qty++;
     },
 
-    sendToWA() {
-      if (!this.cart.length) return alert("Keranjang masih kosong");
+    // =====================
+    // KURANG QTY
+    // =====================
+    decreaseQty(item) {
+      if (item.qty > 1) {
+        item.qty--;
+      }
+    },
 
-      let msg = `Halo, saya ingin sewa alat camping\n`;
-      msg += `Durasi: ${this.days} hari\n\n`;
+    // =====================
+    // HAPUS ITEM
+    // =====================
+    removeItem(id) {
+      this.cart = this.cart.filter((item) => item.id !== id);
+    },
 
-      this.cart.forEach((item, i) => {
-        msg += `${i + 1}. ${item.name} (Rp ${item.price.toLocaleString()}/hari)\n`;
+    // =====================
+    // HITUNG JUMLAH HARI OTOMATIS
+    // =====================
+    calculateDays() {
+      if (this.booking.startDate && this.booking.endDate) {
+        const start = new Date(this.booking.startDate);
+        const end = new Date(this.booking.endDate);
+
+        const diffTime = end - start;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        // minimal 1 hari
+        this.days = diffDays > 0 ? diffDays : 1;
+      } else {
+        this.days = 1;
+      }
+    },
+    get totalDays() {
+      return this.days;
+    },
+
+    // =====================
+    // TOTAL HARGA
+    // =====================
+    get totalPrice() {
+      return this.cart.reduce((total, item) => {
+        return total + item.price * item.qty * this.days;
+      }, 0);
+    },
+
+    validateAndSend() {
+      // 1️⃣ Cart kosong
+      if (this.cart.length === 0) {
+        alert("Silakan pilih alat terlebih dahulu.");
+        return;
+      }
+
+      // 2️⃣ Validasi nama
+      if (!this.booking.name.trim()) {
+        alert("Nama lengkap wajib diisi.");
+        return;
+      }
+
+      // 3️⃣ Validasi nomor
+      if (!this.booking.phone.trim()) {
+        alert("Nomor WhatsApp wajib diisi.");
+        return;
+      }
+
+      // 4️⃣ Validasi tanggal
+      if (!this.booking.startDate || !this.booking.endDate) {
+        alert("Tanggal sewa wajib diisi.");
+        return;
+      }
+
+      // 5️⃣ Validasi durasi
+      if (this.days <= 0) {
+        alert("Durasi sewa tidak valid.");
+        return;
+      }
+
+      this.sendToWhatsApp();
+    },
+
+    sendToWhatsApp() {
+      const adminNumber = "6281313362467"; // GANTI NOMOR ADMIN
+
+      let message = `Halo Aurora Outdoor 👋\n\n`;
+      message += `Saya ingin melakukan booking dengan detail berikut:\n\n`;
+
+      message += `👤 Nama: ${this.booking.name}\n`;
+      message += `📱 No WA: ${this.booking.phone}\n`;
+      message += `📅 Tanggal: ${this.booking.startDate} s/d ${this.booking.endDate}\n`;
+      message += `⏳ Durasi: ${this.days} Hari\n\n`;
+
+      message += `📦 Detail Alat:\n`;
+
+      this.cart.forEach((item) => {
+        message += `- ${item.name} (${item.qty}x)\n`;
       });
 
-      const url = `https://wa.me/62XXXXXXXXXX?text=${encodeURIComponent(msg)}`;
+      message += `\n💰 Total: Rp ${this.totalPrice.toLocaleString()}\n`;
+
+      if (this.booking.note) {
+        message += `\n📝 Catatan: ${this.booking.note}\n`;
+      }
+
+      const encodedMessage = encodeURIComponent(message);
+      const url = `https://wa.me/${adminNumber}?text=${encodedMessage}`;
+
       window.open(url, "_blank");
     },
   }));

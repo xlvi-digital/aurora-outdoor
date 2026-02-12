@@ -277,116 +277,49 @@ body {
   }
 }
 
-/* Daftar alat Dana pesanan */
-/* DURASI SEWA */
-.rental-days {
-  max-width: 300px;
-  margin: 0 auto 40px;
-  text-align: center;
-}
-
-.rental-days label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-.rental-days input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  text-align: center;
-  font-size: 1rem;
-}
-
-/* PRODUCT GRID */
-.product-grid {
+/* ================= LAYOUT ================= */
+.rental-wrapper {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  margin-top: 40px;
 }
 
-.product-card {
-  background: var(--color-bg);
-  padding: 16px;
-  border-radius: 14px;
-  text-align: center;
+@media (min-width: 1024px) {
+  .rental-wrapper {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
 }
 
-.product-card img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 12px;
-}
-
-.price {
-  color: var(--color-muted);
-  margin-bottom: 12px;
-}
-
-.btn-add {
-  background: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* CART */
-.cart {
-  margin-top: 50px;
-  background: var(--color-bg);
-  padding: 24px;
-  border-radius: 14px;
-}
-
-.cart h3 {
-  margin-bottom: 16px;
-}
-
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.cart-summary {
-  border-top: 1px solid var(--color-border);
-  margin-top: 16px;
-  padding-top: 12px;
-}
-
-/* FILTER */
+/* ================= FILTER ================= */
 .filter {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .filter button {
-  border: 1px solid var(--border);
-  background: var(--card);
-  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  padding: 8px 14px;
   border-radius: 20px;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .filter button.active {
-  background: var(--primary);
+  background: var(--color-primary);
   color: #fff;
-  border-color: var(--primary);
+  border-color: var(--color-primary);
 }
 
-/* GRID PRODUK */
+/* ================= PRODUCT GRID ================= */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 16px;
 }
 
 @media (min-width: 768px) {
@@ -395,99 +328,228 @@ body {
   }
 }
 
-.product {
-  background: var(--card);
-  border-radius: 10px;
-  padding: 10px;
-  border: 1px solid var(--border);
+.product-card {
+  background: var(--color-bg);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  text-align: center;
+  transition: 0.3s;
 }
 
-.product h4 {
-  margin: 6px 0;
-  font-size: 14px;
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-.product button {
+.product-card img {
   width: 100%;
-  margin-top: 6px;
-  background: var(--primary);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.price {
+  color: var(--color-muted);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.btn-add {
+  width: 100%;
+  background: var(--color-primary);
   color: white;
   border: none;
-  padding: 6px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
 }
+/* ================= PRODUCT CLICK ANIMATION ================= */
+.product-animate {
+  animation: productBounce 0.4s ease;
+}
 
-/* Floating Cart Base */
-.floating-cart {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 420px;
-  background: #ffffff;
+@keyframes productBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.92);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ================= CART PULSE ================= */
+.cart-pulse {
+  animation: cartPulse 0.5s ease;
+}
+
+@keyframes cartPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(30, 42, 36, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(30, 42, 36, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(30, 42, 36, 0);
+  }
+}
+
+/* ================= CART ================= */
+.cart-card {
+  background: #fff;
+  padding: 24px;
   border-radius: 16px;
-  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #d9534f;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.remove-btn:hover {
+  background: rgba(217, 83, 79, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .cart-card {
+    position: sticky;
+    top: 120px;
+  }
+}
+
+.cart-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  z-index: 999;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
-/* Info */
 .cart-info strong {
-  display: block;
-  font-size: 0.95rem;
-  color: var(--text-dark);
+  font-size: 0.9rem;
 }
 
 .cart-info small {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--color-muted);
 }
 
-/* Button */
-.cart-btn {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 500;
+.qty-control {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.qty-control button {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: white;
   cursor: pointer;
-  white-space: nowrap;
 }
 
-.cart-btn:hover {
-  opacity: 0.9;
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
 }
 
-/* ================== DESKTOP MODE ================== */
+.booking-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+}
+
+/* ================= MODAL ================= */
+.booking-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.booking-modal {
+  background: #fff;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 24px;
+  animation: slideUp 0.3s ease;
+}
+
 @media (min-width: 1024px) {
-  .floating-cart {
-    top: 120px;
-    bottom: auto;
-    left: auto;
-    right: 40px;
-    transform: none;
-    width: 260px;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
+  .booking-overlay {
+    align-items: center;
   }
-
-  .cart-btn {
-    width: 100%;
-    text-align: center;
+  .booking-modal {
+    width: 480px;
+    border-radius: 16px;
   }
 }
 
-@media (max-width: 768px) {
-  .floating-cart {
-    display: flex;
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
   }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.form-group {
+  margin: 16px 0;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.rental-info {
+  background: #f5f7f6;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.confirm-btn {
+  width: 100%;
+  background: var(--color-primary);
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 16px;
 }

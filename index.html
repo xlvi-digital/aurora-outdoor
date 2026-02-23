@@ -55,22 +55,22 @@
             <li><a href="#products">Daftar Alat</a></li>
             <li><a href="#how-booking">Cara Booking</a></li>
             <li><a href="#faq">FAQ</a></li>
+            <li><a href="#about">Tentang Kami</a></li>
             <li><a href="#testimonial">Testimonial</a></li>
           </ul>
 
           <!-- RIGHT SIDE (CART & HAMBURGER) -->
           <div class="nav-actions">
             <!-- CART -->
+
             <button class="cart-button" @click="isDrawerOpen = true" type="button" aria-label="Buka keranjang">
-              🛒
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
               <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
             </button>
 
             <!-- HAMBURGER MENU -->
             <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
-              <span></span>
-              <span></span>
-              <span></span>
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
             </button>
           </div>
         </div>
@@ -80,6 +80,7 @@
           <li><a href="#products" @click="navOpen = false">Daftar Alat</a></li>
           <li><a href="#how-booking" @click="navOpen = false">Cara Booking</a></li>
           <li><a href="#faq" @click="navOpen = false">FAQ</a></li>
+          <li><a href="#abaout" @click="navOpen = false">Tentang Kami</a></li>
           <li><a href="#testimonial" @click="navOpen = false">Testimonial</a></li>
         </ul>
       </nav>
@@ -176,12 +177,16 @@
           </div>
 
           <!-- PAGINATION -->
-          <div class="pagination" x-show="getTotalPages() > 1">
-            <button @click="previousPage()" :disabled="currentPage === 1" class="pagination-btn">← Sebelumnya</button>
-            <div class="pagination-info">
-              <span>Halaman <span x-text="currentPage"></span> dari <span x-text="getTotalPages()"></span></span>
-            </div>
-            <button @click="nextPage()" :disabled="currentPage === getTotalPages()" class="pagination-btn">Selanjutnya →</button>
+          <div class="pagination pagination-numbers" x-show="getTotalPages() > 1">
+            <template x-for="page in Array.from({length: getTotalPages()}, (_, i) => i + 1)" :key="page">
+              <button
+                type="button"
+                class="pagination-btn"
+                :class="{ active: currentPage === page }"
+                @click="currentPage = page"
+                x-text="page"
+              ></button>
+            </template>
           </div>
         </div>
       </div>
@@ -402,11 +407,11 @@
 
             <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
 
-            <div class="social-links">
+            <!-- <div class="social-links">
               <a href="https://www.google.com/maps/search/?api=1&query=Kp+Cikukulu+Nagrak+Bawah+Perempatan+POLRES+Cianjur" target="_blank" rel="noopener noreferrer" title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Lokasi</a>
               <a href="https://wa.me/6281947229060" target="_blank" rel="noopener noreferrer" title="Chat via WhatsApp" aria-label="WhatsApp">💬 WhatsApp</a>
               <a href="https://instagram.com/auroraoutdoor" target="_blank" rel="noopener noreferrer" title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
-            </div>
+            </div> -->
           </div>
 
           <!-- NAVIGATION LINKS -->
@@ -426,9 +431,9 @@
             <p class="contact-note">Ikuti update stok, tanyakan ketersediaan, atau lihat lokasi toko melalui tautan berikut.</p>
 
             <div class="social-links footer-contact-links">
-              <a href="https://www.google.com/maps/search/?api=1&query=Kp+Cikukulu+Nagrak+Bawah+Perempatan+POLRES+Cianjur" target="_blank" rel="noopener noreferrer" title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Google Maps</a>
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank" rel="noopener noreferrer" title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Google Maps</a>
               <a href="https://wa.me/6281947229060" target="_blank" rel="noopener noreferrer" title="Chat via WhatsApp" aria-label="WhatsApp">💬 WhatsApp</a>
-              <a href="https://instagram.com/auroraoutdoor" target="_blank" rel="noopener noreferrer" title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank" rel="noopener noreferrer" title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
             </div>
           </div>
 

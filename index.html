@@ -1,76 +1,109 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
+    <!-- ==================== META TAGS & SEO ==================== -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aurora Oudoor</title>
+    <meta name="description" content="Sewa alat camping berkualitas di Cianjur. Tenda, matras, kompor portable, dan peralatan lengkap. Harga transparan, proses cepat via WhatsApp." />
+    <meta name="keywords" content="sewa alat camping, rental tenda, cianjur, peralatan outdoor, hiking gear" />
+    <meta name="author" content="Aurora Outdoor" />
+    <meta property="og:title" content="Aurora Outdoor - Sewa Alat Camping Mudah & Terpercaya di Cianjur" />
+    <meta property="og:description" content="Perlengkapan camping berkualitas, bersih, dan terpercaya. Booking mudah via WhatsApp." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://auroraoutdoor.com" />
+    
+    <title>Aurora Outdoor - Sewa Alat Camping Mudah & Terpercaya di Cianjur</title>
+
+    <!-- ==================== STYLESHEETS ==================== -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+    
+    <!-- ==================== EXTERNAL LIBRARIES ==================== -->
     <!-- Alpine JS -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- My Css -->
-    <link rel="stylesheet" href="assets/css/style.css" />
-    <!-- My Javascript -->
+    
+    <!-- ==================== CUSTOM SCRIPTS ==================== -->
     <script src="assets/js/app.js"></script>
   </head>
-  <body x-data="app()">
-    <!-- NAVBAR -->
-    <nav class="navbar" x-data="{ open: false }">
-      <div class="nav-container">
-        <!-- Logo -->
-        <div class="logo">
-          <img src="assets/img/logo.png" alt="Aurora Outdoor" />
-          <!-- <span>Aurora Outdoor</span> -->
+
+  <body x-data="rentalApp" x-init="init()">
+    <!-- ==================== TOAST NOTIFICATION ==================== -->
+    <div class="toast-container">
+      <template x-for="toast in toasts" :key="toast.id">
+        <div class="toast" :class="toast.type" x-show="toast.show" x-transition>
+          <span x-text="toast.message"></span>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== FLOATING WHATSAPP BUTTON ==================== -->
+    <a href="https://wa.me/6281947229060" target="_blank" class="floating-whatsapp" title="Chat WhatsApp">
+      <span>💬</span>
+    </a>
+
+    <!-- ==================== HEADER / NAVIGATION ==================== -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+          <!-- LOGO -->
+          <div class="logo">
+            <img src="assets/img/logo.png" alt="Aurora Outdoor Logo" />
+          </div>
+
+          <!-- MENU DESKTOP -->
+          <ul class="nav-menu desktop">
+            <li><a href="#products">Daftar Alat</a></li>
+            <li><a href="#how-booking">Cara Booking</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#testimonial">Testimonial</a></li>
+          </ul>
+
+          <!-- RIGHT SIDE (CART & HAMBURGER) -->
+          <div class="nav-actions">
+            <!-- CART -->
+            <button class="cart-button" @click="isDrawerOpen = true" type="button" aria-label="Buka keranjang">
+              🛒
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </button>
+
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
         </div>
 
-        <!-- Desktop Menu -->
-        <ul class="nav-menu desktop">
-          <li><a href="#products">Daftar Alat</a></li>
-          <li><a href="#booking">Booking</a></li>
-          <li>
-            <a href="https://wa.me/628XXXXXXXXX" class="btn-wa"> WhatsApp </a>
-          </li>
+        <!-- MOBILE MENU -->
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="#products" @click="navOpen = false">Daftar Alat</a></li>
+          <li><a href="#how-booking" @click="navOpen = false">Cara Booking</a></li>
+          <li><a href="#faq" @click="navOpen = false">FAQ</a></li>
+          <li><a href="#testimonial" @click="navOpen = false">Testimonial</a></li>
         </ul>
-
-        <!-- Hamburger -->
-        <button class="hamburger" @click="open = !open">☰</button>
-      </div>
-
-      <!-- Mobile Menu -->
-      <ul class="nav-menu mobile" x-show="open" @click.outside="open = false">
-        <li><a href="#products">Daftar Alat</a></li>
-        <li><a href="#booking">Booking</a></li>
-        <li>
-          <a href="https://wa.me/628XXXXXXXXX" class="btn-wa"> WhatsApp </a>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- HERO -->
-    <section class="hero">
+      </nav>
+    </header>
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero reveal" id="hero">
       <div class="hero-overlay"></div>
 
       <div class="hero-content">
-        <h1>
-          Sewa Alat Camping<br />
-          Mudah & Terpercaya<br />
-          di Cianjur
-        </h1>
+        <h1>Sewa Alat Camping<br />Mudah &amp; Terpercaya<br />di Cianjur</h1>
 
-        <p>
-          Alat lengkap, bersih, siap pakai.<br />
-          Booking cepat via WhatsApp.
+        <p class="hero-subtitle">
+          Perlengkapan camping berkualitas, bersih, dan siap pakai.<br />
+          Booking cepat hanya via WhatsApp.
         </p>
 
         <div class="hero-buttons">
-          <a href="#booking" class="btn-primary"> Booking Sekarang </a>
-          <a href="https://wa.me/628XXXXXXXXX" class="btn-secondary"> Chat WhatsApp </a>
+          <a href="#products" class="btn-primary btn-lg">🔍 Lihat Katalog Alat</a>
+          <a href="https://wa.me/6281947229060" target="_blank" class="btn-secondary btn-lg">💬 Chat WhatsApp</a>
         </div>
       </div>
     </section>
 
-    <!-- Keunggulan  -->
-    <!-- KEUNGGULAN -->
-    <section class="features" id="features">
+    <!-- ==================== FEATURES / WHY CHOOSE US ==================== -->
+    <section class="features reveal" id="features">
       <div class="container">
         <div class="section-header">
           <h2>Kenapa Aurora Outdoor?</h2>
@@ -105,8 +138,8 @@
       </div>
     </section>
 
-    <section class="products" :class="animatingId === product.id ? 'product-animate' : ''" id="products" x-data="rentalApp">
-      <div class="container rental-wrapper">
+    <!-- ==================== PRODUCTS / RENTAL CATALOG ==================== -->
+      <div class="container rental-wrapper" id="products">
         <!-- LEFT SIDE -->
         <div>
           <div class="section-header">
@@ -114,16 +147,24 @@
             <p>Pilih alat dan tentukan durasi sewa.</p>
           </div>
 
-          <!-- FILTER -->
-          <div class="filter">
-            <template x-for="cat in categories" :key="cat.key">
-              <button @click="activeCategory = cat.key" :class="activeCategory === cat.key ? 'active' : ''" x-text="cat.label"></button>
-            </template>
+          <!-- FILTER & SEARCH WRAPPER -->
+          <div class="filter-search-wrapper">
+            <!-- FILTER -->
+            <div class="filter">
+              <template x-for="cat in categories" :key="cat.key">
+                <button @click="activeCategory = cat.key" :class="activeCategory === cat.key ? 'active' : ''" x-text="cat.label"></button>
+              </template>
+            </div>
+
+            <!-- SEARCH INPUT -->
+            <div class="search-box">
+              <input type="text" placeholder="🔍 Cari alat camping..." x-model="searchQuery" @input="currentPage = 1" class="search-input" />
+            </div>
           </div>
 
           <!-- GRID -->
           <div class="product-grid">
-            <template x-for="product in filteredProducts()" :key="product.id">
+            <template x-for="product in getPaginatedProducts()" :key="product.id">
               <div class="product-card">
                 <img :src="product.img" :alt="product.name" />
                 <h3 x-text="product.name"></h3>
@@ -132,89 +173,21 @@
               </div>
             </template>
           </div>
-        </div>
 
-        <!-- RIGHT SIDE (STICKY CART) -->
-        <aside class="cart-area">
-          <div class="cart-card" :class="cartPulse ? 'cart-pulse' : ''" x-transition>
-            <h3>Ringkasan Booking</h3>
-
-            <div class="cart-list">
-              <template x-if="cart.length === 0">
-                <p class="empty-cart">Belum ada alat dipilih</p>
-              </template>
-
-              <template x-for="item in cart" :key="item.id">
-                <div class="cart-item">
-                  <div class="cart-info">
-                    <strong x-text="item.name"></strong>
-                    <small x-text="`Rp ${item.price.toLocaleString()} / hari`"></small>
-                  </div>
-
-                  <div class="qty-control">
-                    <button @click="decreaseQty(item)">−</button>
-                    <span x-text="item.qty"></span>
-                    <button @click="increaseQty(item)">+</button>
-                  </div>
-
-                  <!-- REMOVE BUTTON -->
-                  <button class="remove-btn" @click="removeItem(item.id)">✕</button>
-                </div>
-              </template>
+          <!-- PAGINATION -->
+          <div class="pagination" x-show="getTotalPages() > 1">
+            <button @click="previousPage()" :disabled="currentPage === 1" class="pagination-btn">← Sebelumnya</button>
+            <div class="pagination-info">
+              <span>Halaman <span x-text="currentPage"></span> dari <span x-text="getTotalPages()"></span></span>
             </div>
-
-            <div class="cart-total" x-show="cart.length > 0">
-              <strong>Total</strong>
-              <span x-text="`Rp ${totalPrice.toLocaleString()}`"></span>
-            </div>
-
-            <button class="booking-btn" x-show="cart.length > 0" @click="showBookingModal = true">Lanjut Booking</button>
+            <button @click="nextPage()" :disabled="currentPage === getTotalPages()" class="pagination-btn">Selanjutnya →</button>
           </div>
-        </aside>
-      </div>
-
-      <!-- MODAL -->
-      <div x-show="showBookingModal" x-transition class="booking-overlay">
-        <div class="booking-modal" @click.away="showBookingModal = false">
-          <h3>Form Booking</h3>
-
-          <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" x-model="booking.name" />
-          </div>
-
-          <div class="form-group">
-            <label>No WhatsApp</label>
-            <input type="number" x-model="booking.phone" />
-          </div>
-
-          <div class="form-group">
-            <label>Tanggal Mulai</label>
-            <input type="date" x-model="booking.startDate" @change="calculateDays()" />
-          </div>
-
-          <div class="form-group">
-            <label>Tanggal Selesai</label>
-            <input type="date" x-model="booking.endDate" @change="calculateDays()" />
-          </div>
-
-          <div class="rental-info" x-show="days > 0">
-            <span>Durasi</span>
-            <strong x-text="days + ' Hari'"></strong>
-          </div>
-
-          <div class="cart-total" x-show="days > 0">
-            <strong>Total Bayar</strong>
-            <span x-text="`Rp ${totalPrice.toLocaleString()}`"></span>
-          </div>
-
-          <button class="confirm-btn" @click="validateAndSend()">Konfirmasi Booking</button>
         </div>
       </div>
     </section>
 
     <!-- ================= CARA BOOKING ================= -->
-    <section class="how-booking" id="how-booking">
+    <section class="how-booking reveal" id="how-booking">
       <div class="container">
         <div class="section-header">
           <h2>Cara Booking</h2>
@@ -225,43 +198,37 @@
           <!-- STEP 1 -->
           <div class="step-card">
             <div class="step-number">1</div>
-
             <div class="step-icon">
-              <img src="assets/img/icon-camping.png" alt="Pilih Alat" />
+              <img src="assets/img/icon-camping.png" alt="Pilih Alat Camping" />
             </div>
-
             <h3>Pilih Alat</h3>
-            <p>Pilih perlengkapan camping favoritmu.</p>
+            <p>Pilih perlengkapan camping favoritmu dari katalog lengkap kami.</p>
           </div>
 
           <!-- STEP 2 -->
           <div class="step-card">
             <div class="step-number">2</div>
-
             <div class="step-icon">
-              <img src="assets/img/icon-calendar.jpg" alt="Tentukan Tanggal" />
+              <img src="assets/img/icon-calendar.png" alt="Tentukan Tanggal Sewa" />
             </div>
-
             <h3>Tentukan Tanggal</h3>
-            <p>Atur tanggal sewa sesuai rencana perjalananmu.</p>
+            <p>Atur tanggal sewa sesuai rencana perjalanan dan petualanganmu.</p>
           </div>
 
           <!-- STEP 3 -->
           <div class="step-card">
             <div class="step-number">3</div>
-
             <div class="step-icon whatsapp">
-              <img src="assets/img/icon-whatapp.svg" alt="Konfirmasi WhatsApp" />
+              <img src="assets/img/icon-whatapp.png" alt="Konfirmasi via WhatsApp" />
             </div>
-
             <h3>Konfirmasi via WhatsApp</h3>
-            <p>Hubungi kami dan konfirmasi pesananmu.</p>
+            <p>Hubungi kami dan konfirmasi pesananmu untuk kerangka waktu terbaik.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="about-us" id="about">
+    <section class="about-us reveal" id="about">
       <div class="container">
         <div class="about-wrapper">
           <!-- FOTO -->
@@ -282,14 +249,16 @@
             <div class="about-card">
               <div class="contact-item">
                 <h4>WhatsApp</h4>
-                <p>+62 8XXX XXXX XXXX</p>
+                <p>+62 819 4722 9060</p>
               </div>
 
               <div class="contact-item">
                 <h4>Alamat Toko</h4>
                 <p>
-                  Jl. Contoh No. 123 <br />
-                  Kota Kamu, Indonesia
+                  Kp Cikukulu Nagrak bawah
+
+                  <br />
+                  Perempatan POLRES
                 </p>
               </div>
 
@@ -297,7 +266,7 @@
                 <h4>Jam Operasional</h4>
                 <p>
                   Senin - Minggu <br />
-                  08.00 - 21.00 WIB
+                  09.00 - 21.00 WIB
                 </p>
               </div>
             </div>
@@ -307,7 +276,7 @@
     </section>
 
     <!-- ================= TESTIMONIAL ================= -->
-    <section class="testimonial" id="testimonial">
+    <section class="testimonial reveal" id="testimonial">
       <div class="container">
         <div class="section-header">
           <h2>Apa Kata Mereka?</h2>
@@ -315,77 +284,325 @@
         </div>
 
         <div class="testimonial-grid">
-          <div class="testimonial-card">
+          <article class="testimonial-card">
             <div class="stars">★★★★★</div>
             <p>Peralatannya bersih dan lengkap. Proses booking cepat dan admin responsif banget!</p>
             <div class="customer">
               <strong>Rizky Pratama</strong>
               <span>Jakarta</span>
             </div>
-          </div>
+          </article>
 
-          <div class="testimonial-card">
+          <article class="testimonial-card">
             <div class="stars">★★★★★</div>
             <p>Harga terjangkau dan kualitas tenda masih sangat bagus. Recommended!</p>
             <div class="customer">
               <strong>Sinta Maharani</strong>
               <span>Bandung</span>
             </div>
-          </div>
+          </article>
 
-          <div class="testimonial-card">
+          <article class="testimonial-card">
             <div class="stars">★★★★★</div>
             <p>Booking via WhatsApp sangat mudah. Tidak ribet dan langsung diproses.</p>
             <div class="customer">
               <strong>Andi Saputra</strong>
               <span>Bogor</span>
             </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="faq reveal" id="faq">
+      <div class="container">
+        <div class="section-header">
+          <h2>Pertanyaan yang Sering Diajukan</h2>
+          <p>Temukan jawaban untuk pertanyaan umum tentang sewa alat camping kami.</p>
+        </div>
+
+        <div class="faq-container">
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Berapa lama minimal durasi sewa?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Kami sangat fleksibel! Durasi minimal sewa adalah <strong>1 hari (24 jam)</strong>, sempurna untuk petualangan akhir pekan Anda. Namun, kami juga memahami bahwa setiap petualangan berbeda - jadi kami menerima penyewaan <strong>hanya beberapa jam</strong> tergantung ketersediaan alat. Hubungi kami via WhatsApp untuk opsi short-rental yang disesuaikan dengan rencana perjalanan Anda!</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Apakah ada biaya tambahan?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p><strong>Tidak ada biaya tersembunyi!</strong> Kami percaya pada transparansi 100%. Harga yang Anda lihat di katalog sudah termasuk semua biaya rental - tidak ada surprise charges atau biaya admin mendadak. Untuk pesanan besar atau rental jangka panjang, kami mungkin meminta <strong>deposit/jaminan</strong> untuk keamanan bersama. Semuanya akan dijelaskan terlebih dahulu sebelum Anda booking. Kepercayaan Anda adalah prioritas kami!</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Bagaimana jika alat rusak saat digunakan?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Kami tahu bahwa petualangan outdoor terkadang penuh kejutan - dan kami siap untuk itu! Jika terjadi kerusakan saat Anda menggunakan alat, <strong>hubungi kami segera via WhatsApp</strong>. Kami adalah tim yang memahami - kami akan membahas situasinya bersama dan menemukan solusi yang adil. Asuransi kerusakan tersedia untuk opsi rental tertentu, jadi pastikan Anda menanyakannya saat booking!</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Di mana lokasi penyewaan?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Toko fisik Aurora Outdoor kami berlokasi di <strong>Kp Cikukulu, Nagrak Bawah, Perempatan POLRES, Cianjur, Jawa Barat</strong> - strategis dan mudah diakses dari berbagai destinasi hiking populer di wilayah Cianjur. Untuk kenyamanan maksimal, kami juga menawarkan <strong>layanan antar/ambil (delivery/pickup)</strong> untuk area tertentu dengan biaya yang pasti kami bicarakan terlebih dahulu. Hubungi kami untuk koordinasi yang sempurna sesuai jadwal petualanganmu!</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Apa saja syarat & ketentuan penyewaan?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Untuk menjaga kualitas alat bagi semua petualang, kami punya beberapa aturan sederhana: <strong>(1) Jaga alat dengan baik</strong> selama rental - ini adalah investasi kami untuk petualangan Anda. <strong>(2) Kembalikan dalam kondisi bersih</strong> seperti saat Anda menerimanya - kami akan membersihkannya, tapi pastikan tidak ada lumpur atau kotoran yang tertinggal. <strong>(3) Kembalikan sesuai jadwal</strong> - jika terlambat, denda keterlambatan adalah <strong>Rp 10.000/jam</strong>. Ini semua untuk memastikan setiap petualang mendapatkan alat yang sempurna!</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= FOOTER ================= -->
+    <!-- ================= FINAL CTA ================= -->
+    <section class="final-cta reveal">
+      <div class="container">
+        <div class="cta-content">
+          <h2>Siap Memulai Petualanganmu?</h2>
+          <p>Booking sekarang dan dapatkan pengalaman outdoor yang tak terlupakan bersama Aurora Outdoor.</p>
+          <a href="https://wa.me/6281947229060" target="_blank" class="btn-primary btn-lg">💬 Chat WhatsApp Sekarang</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
       <div class="container">
         <div class="footer-wrapper">
-          <!-- BRAND -->
+          <!-- BRAND INFO -->
           <div class="footer-brand">
             <h3>Aurora Outdoor</h3>
-            <p>Penyedia jasa sewa perlengkapan camping terpercaya. Siap mendukung petualanganmu dengan nyaman dan aman.</p>
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+            <div class="social-links">
+              <a href="#" title="Follow Instagram" aria-label="Instagram">📧</a>
+              <a href="#" title="Follow Facebook" aria-label="Facebook">f</a>
+              <a href="#" title="Follow TikTok" aria-label="TikTok">♪</a>
+            </div>
           </div>
 
-          <!-- NAVIGATION -->
-          <div class="footer-links">
+          <!-- NAVIGATION LINKS -->
+          <nav class="footer-links">
             <h4>Navigasi</h4>
             <ul>
+              <li><a href="#products">Daftar Alat</a></li>
               <li><a href="#how-booking">Cara Booking</a></li>
-              <li><a href="#why-us">Keunggulan</a></li>
+              <li><a href="#faq">FAQ</a></li>
               <li><a href="#testimonial">Testimonial</a></li>
               <li><a href="#about">Tentang Kami</a></li>
             </ul>
-          </div>
+          </nav>
 
-          <!-- CONTACT -->
+          <!-- CONTACT INFO -->
           <div class="footer-contact">
-            <h4>Kontak</h4>
-            <p>📍 Jl. Contoh No. 123, Kota Kamu</p>
-            <p>📱 +62 8XXX XXXX XXXX</p>
-            <p>🕒 08.00 - 21.00 WIB</p>
+            <h4>Kontak &amp; Lokasi</h4>
+            <ul>
+              <li>📍 Kp Cikukulu, Nagrak Bawah<br />Perempatan POLRES, Cianjur, Jawa Barat</li>
+              <li>💬 <a href="https://wa.me/6281947229060" target="_blank">+62 819 4722 9060</a></li>
+              <li>🕒 09:00 - 21:00 WIB (Senin-Minggu)</li>
+            </ul>
           </div>
 
           <!-- CTA -->
           <div class="footer-cta">
-            <h4>Siap Booking?</h4>
-            <a href="https://wa.me/628XXXXXXXXXX" target="_blank" class="footer-btn"> Chat WhatsApp </a>
+            <h4>Hubungi Kami</h4>
+            <a href="https://wa.me/6281947229060" target="_blank" class="footer-btn">💬 Chat WhatsApp</a>
+            <p class="cta-subtitle">Respons cepat, langsung ke nomor owner</p>
           </div>
         </div>
 
-        <!-- BOTTOM -->
+        <!-- FOOTER BOTTOM -->
         <div class="footer-bottom">
-          <p>© 2026 Aurora Outdoor. All Rights Reserved.</p>
+          <div class="footer-copyright">
+            <p>&copy; <span x-text="new Date().getFullYear()"></span> Aurora Outdoor. Semua Hak Dilindungi.</p>
+          </div>
+          <div class="footer-disclaimer">
+            <p><small>Ketersediaan alat dapat berubah sewaktu-waktu. Harap konfirmasi ketersediaan sebelum booking. Syarat &amp; ketentuan berlaku untuk semua transaksi.</small></p>
+          </div>
         </div>
       </div>
     </footer>
+
+    <!-- ==================== CART DRAWER ==================== -->
+    <div class="drawer-overlay" x-show="isDrawerOpen" @click="isDrawerOpen = false" x-transition.opacity></div>
+
+    <aside class="drawer" :class="{ 'open': isDrawerOpen }" role="complementary" aria-label="Shopping Cart">
+      <!-- DRAWER HEADER -->
+      <div class="drawer-header">
+        <h2>Keranjang Belanja</h2>
+        <button type="button" class="close" @click="isDrawerOpen = false" aria-label="Tutup keranjang">✕</button>
+      </div>
+
+      <!-- DRAWER BODY -->
+      <div class="drawer-body">
+        <template x-if="cart.length === 0">
+          <p class="empty-cart">Keranjang Anda masih kosong</p>
+        </template>
+
+        <template x-for="item in cart" :key="item.id">
+          <div class="cart-item">
+            <div class="item-info">
+              <strong x-text="item.name"></strong>
+              <div class="item-price">Rp <span x-text="item.price.toLocaleString()"></span>/hari</div>
+            </div>
+
+            <!-- QUANTITY CONTROL -->
+            <div class="qty-control">
+              <button @click="decreaseQty(item)" type="button">−</button>
+              <span x-text="item.qty"></span>
+              <button @click="increaseQty(item)" type="button">+</button>
+            </div>
+          </div>
+        </template>
+
+        <!-- BOOKING DATE SECTION -->
+        <div class="booking-section">
+          <h3>Tanggal Booking</h3>
+
+          <div class="form-group">
+            <label for="startDate">Tanggal Mulai</label>
+            <input type="date" id="startDate" x-model="booking.startDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">Tanggal Selesai</label>
+            <input type="date" id="endDate" x-model="booking.endDate" />
+          </div>
+
+          <div class="rental-info" x-show="rentalDays > 0">
+            Durasi: <strong x-text="rentalDays + ' Hari'"></strong>
+          </div>
+        </div>
+
+        <!-- CUSTOMER DATA SECTION -->
+        <div class="booking-section">
+          <h3>Data Penyewa</h3>
+
+          <div class="form-group">
+            <label for="customerName">Nama Lengkap</label>
+            <input type="text" id="customerName" placeholder="Masukkan nama lengkap" x-model="booking.name" />
+          </div>
+
+          <div class="form-group">
+            <label for="customerPhone">No WhatsApp</label>
+            <input type="tel" id="customerPhone" placeholder="08xxxxxxxxxx" x-model="booking.phone" />
+          </div>
+        </div>
+
+        <!-- DRAWER FOOTER -->
+        <div class="drawer-footer">
+          <div class="drawer-total">
+            Total:
+            <strong>Rp <span x-text="totalPrice.toLocaleString()"></span></strong>
+          </div>
+
+          <button class="checkout-btn" :disabled="totalPrice === 0" @click="checkoutWhatsApp()" type="button">
+            💬 Checkout via WhatsApp
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== REVEAL SCRIPT ==================== -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // ==================== SCROLL REVEAL ANIMATION ====================
+        const reveals = document.querySelectorAll(".reveal");
+
+        function revealOnScroll() {
+          const windowHeight = window.innerHeight;
+
+          reveals.forEach((el) => {
+            const elementTop = el.getBoundingClientRect().top;
+
+            if (elementTop < windowHeight - 100) {
+              el.classList.add("active");
+            }
+          });
+        }
+
+        window.addEventListener("scroll", revealOnScroll);
+        revealOnScroll();
+
+        // ==================== NAVBAR SCROLL EFFECT ====================
+        const navbar = document.querySelector(".navbar");
+        window.addEventListener("scroll", function () {
+          if (window.scrollY > 20) {
+            navbar.classList.add("scrolled");
+          } else {
+            navbar.classList.remove("scrolled");
+          }
+        });
+
+        // ==================== FAQ ACCORDION ====================
+        const faqQuestions = document.querySelectorAll(".faq-question");
+        faqQuestions.forEach((button) => {
+          button.addEventListener("click", function () {
+            const answer = this.nextElementSibling;
+            const isActive = answer.classList.contains("active");
+
+            // Close all other answers
+            document.querySelectorAll(".faq-answer.active").forEach((openAnswer) => {
+              if (openAnswer !== answer) {
+                openAnswer.classList.remove("active");
+              }
+            });
+
+            // Toggle current answer
+            if (isActive) {
+              answer.classList.remove("active");
+            } else {
+              answer.classList.add("active");
+            }
+          });
+        });
+
+        // ==================== SMOOTH SCROLL LINKS ====================
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            const href = this.getAttribute("href");
+            if (href !== "#" && document.querySelector(href)) {
+              e.preventDefault();
+              const target = document.querySelector(href);
+              const headerOffset = 80;
+              const elementPosition = target.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth",
+              });
+
+              // Close mobile menu if open
+              const navMenu = document.querySelector(".nav-menu.mobile");
+              if (navMenu && navMenu.classList.contains("active")) {
+                navMenu.classList.remove("active");
+              }
+            }
+          });
+        });
+      });
+    </script>
   </body>
 </html>

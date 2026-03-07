@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ | Aurora Outdoor</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .page-hero {
+        position: relative;
+        height: 40vh;
+        min-height: 300px;
+        background: url("https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80&w=1600") center/cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .page-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(11, 79, 138, 0.8), rgba(0, 0, 0, 0.6));
+      }
+      .page-hero-content {
+        position: relative;
+        z-index: 10;
+        color: #ffffff;
+        padding: 0 20px;
+        animation: fadeIn 1s ease-out;
+      }
+      .page-hero-content h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .page-hero-content p {
+        font-size: 1.2rem;
+        color: #e0e7ef;
+      }
+
+      /* Modern Accordion Styles */
+      .faq-page-container {
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 0 20px;
+      }
+
+      .faq-accordion .faq-item {
+        background: #fff;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        overflow: hidden;
+      }
+
+      .faq-accordion .faq-question {
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        padding: 20px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-dark);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+      }
+
+      .faq-accordion .faq-question:hover {
+        background: #f8fafc;
+      }
+
+      .faq-accordion .faq-icon {
+        font-size: 1.5rem;
+        color: var(--color-primary);
+        font-weight: 300;
+        transition: transform 0.3s ease;
+      }
+
+      .faq-accordion .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, padding 0.4s ease;
+        background: #f8fafc;
+        padding: 0 24px;
+      }
+
+      .faq-accordion .faq-answer.active {
+        max-height: 500px;
+        padding: 20px 24px;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .faq-accordion .faq-answer p {
+        color: var(--color-text);
+        line-height: 1.6;
+        margin: 0;
+      }
+      
+      .faq-accordion .faq-question.active .faq-icon {
+        transform: rotate(45deg);
+        color: #e53935;
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation">
+        <div class="nav-container">
+          <div class="logo">
+            <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+          </div>
+          <ul class="nav-menu desktop">
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html" style="color: var(--color-primary); font-weight: 700;">FAQ</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
+          </ul>
+          <div class="nav-actions">
+            <!-- CART -->
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </a>
+
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+            </button>
+          </div>
+        </div>
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="product.html">Daftar Alat</a></li>
+          <li><a href="cara-booking.html">Cara Booking</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          <li><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="page-hero-overlay"></div>
+        <div class="page-hero-content">
+          <h1>FAQ</h1>
+          <p>Pertanyaan yang paling sering ditanyakan oleh pelanggan kami.</p>
+        </div>
+      </section>
+
+      <section class="faq-page-container">
+        <div class="faq-accordion">
+          <!-- FAQ 1 -->
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Apakah bisa sewa 1 hari saja?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Ya, penyewaan bisa dilakukan minimal 1 hari (24 jam). Sangat cocok untuk petualangan short-trip atau camping akhir pekan Anda.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Apakah ada deposit?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Beberapa perlengkapan tertentu memerlukan jaminan berupa kartu identitas (KTP/SIM/KTM) yang asli dan masih berlaku. Identitas Anda akan dikembalikan setelah barang dikembalikan dalam kondisi baik.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Bagaimana jika barang rusak?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Kerusakan ringan atau berat akan ditanggung oleh penyewa sesuai dengan nominal perbaikan atau harga barang tersebut. Kami sangat menyarankan agar Anda mengecek barang saat pengambilan dan menjaganya dengan baik selama pemakaian.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Apakah bisa booking jauh hari?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Tentu saja! Kami justru menyarankan Anda untuk melakukan booking lebih awal agar stok barang impian Anda tersedia untuk tanggal yang diinginkan, terutama di hari libur nasional atau akhir pekan yang padat.</p>
+            </div>
+          </div>
+          
+          <!-- FAQ 5 -->
+          <div class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Di mana lokasi penyewaan Aurora Outdoor?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Kami berlokasi di <strong>Kp Cikukulu, Nagrak Bawah, Perempatan POLRES, Cianjur, Jawa Barat</strong>. Sangat strategis untuk Anda yang akan mendaki gunung-gunung di wilayah Jawa Barat.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-wrapper">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor" /></a>
+            </div>
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+          </div>
+          <nav class="footer-links">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            </ul>
+          </nav>
+          <div class="footer-contact">
+            <h4>Terhubung dengan Kami</h4>
+            <div class="social-links footer-contact-links">
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank">📍 Google Maps</a>
+              <a href="https://wa.me/6281947229060" target="_blank">💬 WhatsApp</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank">📸 Instagram</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 Aurora Outdoor. Semua Hak Dilindungi.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+      // Accordion Logic
+      document.addEventListener("DOMContentLoaded", function () {
+        const faqQuestions = document.querySelectorAll(".faq-question");
+        faqQuestions.forEach((button) => {
+          button.addEventListener("click", function () {
+            const answer = this.nextElementSibling;
+            const isActive = answer.classList.contains("active");
+
+            // Close all
+            document.querySelectorAll(".faq-answer").forEach(ans => ans.classList.remove("active"));
+            document.querySelectorAll(".faq-question").forEach(btn => btn.classList.remove("active"));
+
+            // Open clicked
+            if (!isActive) {
+              this.classList.add("active");
+              answer.classList.add("active");
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Testimonial | Aurora Outdoor</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .page-hero {
+        position: relative;
+        height: 50vh;
+        min-height: 400px;
+        background: url("https://images.unsplash.com/photo-1533481405265-e9ce0c044abb?auto=format&fit=crop&q=80&w=1600") center/cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .page-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(11, 79, 138, 0.75), rgba(30, 30, 30, 0.6));
+      }
+      .page-hero-content {
+        position: relative;
+        z-index: 10;
+        color: #ffffff;
+        padding: 0 20px;
+      }
+      .page-hero-content h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+      }
+      .page-hero-content p {
+        font-size: 1.2rem;
+        color: #e0e7ef;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
+      .testimonial-section {
+        padding: 80px 20px;
+        background-color: var(--color-bg);
+      }
+
+      .testimonial-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+      }
+
+      .testi-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid var(--color-border);
+        transition: transform 0.3s ease;
+        position: relative;
+      }
+
+      .testi-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .quote-icon {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-size: 4rem;
+        color: #f1f5f9;
+        font-family: Georgia, serif;
+        line-height: 1;
+      }
+
+      .stars {
+        color: #fbbf24;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .testi-text {
+        font-size: 1.1rem;
+        color: var(--color-text);
+        line-height: 1.6;
+        margin-bottom: 30px;
+        font-style: italic;
+        position: relative;
+        z-index: 2;
+        min-height: 80px;
+      }
+
+      .testi-author {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-top: 1px solid var(--color-border);
+        padding-top: 20px;
+      }
+
+      .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e2e8f0;
+      }
+
+      .author-info h4 {
+        margin: 0 0 4px 0;
+        color: var(--color-primary);
+        font-size: 1.05rem;
+      }
+
+      .author-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-muted);
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation">
+        <div class="nav-container">
+          <div class="logo">
+            <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+          </div>
+          <ul class="nav-menu desktop">
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            <li><a href="testimonial.html" style="color: var(--color-primary); font-weight: 700;">Testimonial</a></li>
+          </ul>
+          <div class="nav-actions">
+            <!-- CART -->
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </a>
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+            </button>
+          </div>
+        </div>
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="product.html">Daftar Alat</a></li>
+          <li><a href="cara-booking.html">Cara Booking</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          <li><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="page-hero-overlay"></div>
+        <div class="page-hero-content">
+          <h1>Testimonial</h1>
+          <p>Cerita dan pengalaman perjalanan pelanggan setia kami.</p>
+        </div>
+      </section>
+
+      <section class="testimonial-section">
+        <div class="testimonial-container">
+          <!-- Item 1 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★★</div>
+            <p class="testi-text">Perlengkapannya lengkap dan kondisinya sangat bagus. Pelayanannya juga super cepat, adminnya ramah banget ngebantu pilihin alat yang cocok buat pemula!</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Andi&background=0b4f8a&color=fff" alt="Andi" class="author-avatar">
+              <div class="author-info">
+                <h4>Andi</h4>
+                <p>Pendaki Gunung Gede</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★★</div>
+            <p class="testi-text">Sangat membantu buat yang mau camping tapi belum punya perlengkapan sendiri. Barangnya diantar tepat waktu dan pas dipakai tendanya gak bocor pas ujan deras.</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Rina&background=1da851&color=fff" alt="Rina" class="author-avatar">
+              <div class="author-info">
+                <h4>Rina</h4>
+                <p>Camping di Pangalengan</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★★</div>
+            <p class="testi-text">Harga sewanya sangat terjangkau dibanding langganan tempat lama saya, tapi kualitas dan kebersihannya luar biasa. Sleeping bag-nya nyaman dan wangi.</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Fajar&background=0b4f8a&color=fff" alt="Fajar" class="author-avatar">
+              <div class="author-info">
+                <h4>Fajar</h4>
+                <p>Trip Gunung Papandayan</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Item 4 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★☆</div>
+            <p class="testi-text">Pertama kali nyewa carrier di sini, busanya masih empuk banget ga bikin bahu sakit. Recommended buat yang mau nyewa alat nanjak ke basecamp via Cianjur.</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Budi&background=5da9e9&color=fff" alt="Budi" class="author-avatar">
+              <div class="author-info">
+                <h4>Budi</h4>
+                <p>Pendaki Gunung Salak</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Item 5 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★★</div>
+            <p class="testi-text">Proses bookingnya gampang banget lewat WhatsApp. Terus bisa req alatnya diambil di jam tertentu. Barangnya bersih, adminnya totalitas. Joss lah pokoknya!</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Dimas&background=1da851&color=fff" alt="Dimas" class="author-avatar">
+              <div class="author-info">
+                <h4>Dimas</h4>
+                <p>Camping di Cibodas</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Item 6 -->
+          <div class="testi-card">
+            <div class="quote-icon">"</div>
+            <div class="stars">★★★★★</div>
+            <p class="testi-text">Kompor portable dan nestingnya masih kinclong. Sempat bingung masangnya tapi adminnya dengan sabar ngajarin. Bener-bener tempat sewa yang peduli sama customer.</p>
+            <div class="testi-author">
+              <img src="https://ui-avatars.com/api/?name=Citra&background=0b4f8a&color=fff" alt="Citra" class="author-avatar">
+              <div class="author-info">
+                <h4>Citra</h4>
+                <p>Fun Camp Mandalawangi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-wrapper">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor" /></a>
+            </div>
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+          </div>
+          <nav class="footer-links">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            </ul>
+          </nav>
+          <div class="footer-contact">
+            <h4>Terhubung dengan Kami</h4>
+            <div class="social-links footer-contact-links">
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank">📍 Google Maps</a>
+              <a href="https://wa.me/6281947229060" target="_blank">💬 WhatsApp</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank">📸 Instagram</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 Aurora Outdoor. Semua Hak Dilindungi.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>

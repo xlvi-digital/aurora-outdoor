@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tentang Kami | Aurora Outdoor</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .page-hero {
+        position: relative;
+        height: 50vh;
+        min-height: 400px;
+        background: url("https://images.unsplash.com/photo-1517823382902-f266aa6b71d9?auto=format&fit=crop&q=80&w=1600") center/cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .page-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(11, 79, 138, 0.7), rgba(0, 0, 0, 0.8));
+      }
+      .page-hero-content {
+        position: relative;
+        z-index: 10;
+        color: #ffffff;
+        padding: 0 20px;
+        animation: fadeIn 1.2s ease-out;
+      }
+      .page-hero-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .page-hero-content p {
+        font-size: 1.2rem;
+        color: #e0e7ef;
+      }
+
+      .about-section {
+        padding: 80px 20px;
+        background-color: var(--color-bg);
+      }
+      
+      .about-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        gap: 60px;
+        align-items: center;
+      }
+
+      .about-image {
+        flex: 1;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      }
+
+      .about-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+      }
+
+      .about-image:hover img {
+        transform: scale(1.05);
+      }
+      
+      .about-content {
+        flex: 1;
+      }
+
+      .about-content h2 {
+        font-size: 2.5rem;
+        color: var(--color-primary);
+        margin-bottom: 24px;
+        position: relative;
+        padding-bottom: 15px;
+      }
+
+      .about-content h2::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 80px;
+        height: 4px;
+        background: var(--color-accent);
+        border-radius: 2px;
+      }
+
+      .about-content p {
+        font-size: 1.1rem;
+        color: var(--color-text);
+        line-height: 1.8;
+        margin-bottom: 20px;
+      }
+
+      /* Features/Values underneath */
+      .values-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 60px;
+      }
+
+      .value-card {
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid var(--color-border);
+      }
+
+      .value-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        display: inline-block;
+      }
+
+      .value-card h4 {
+        color: var(--color-primary);
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+      }
+      
+      .value-card p {
+        color: var(--color-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 900px) {
+        .about-container {
+          flex-direction: column;
+        }
+        .values-grid {
+          grid-template-columns: 1fr;
+        }
+        .page-hero-content h1 {
+          font-size: 2.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation">
+        <div class="nav-container">
+          <div class="logo">
+            <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+          </div>
+          <ul class="nav-menu desktop">
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="tentang-kami.html" style="color: var(--color-primary); font-weight: 700;">Tentang Kami</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
+          </ul>
+          <div class="nav-actions">
+            <!-- CART -->
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </a>
+
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+            </button>
+          </div>
+        </div>
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="product.html">Daftar Alat</a></li>
+          <li><a href="cara-booking.html">Cara Booking</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          <li><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="page-hero-overlay"></div>
+        <div class="page-hero-content">
+          <h1>TENTANG KAMI</h1>
+          <p>Mendukung setiap langkah petualangan Anda.</p>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <div class="about-container">
+          <div class="about-image">
+            <img src="https://images.unsplash.com/photo-1501554728187-ce583db33af7?auto=format&fit=crop&q=80&w=800" alt="Aurora Outdoor Camping">
+          </div>
+          <div class="about-content">
+            <h2>Tentang Aurora Outdoor</h2>
+            <p><strong>Aurora Outdoor</strong> adalah layanan penyewaan perlengkapan camping dan kegiatan outdoor yang bertujuan membantu para pecinta alam menikmati petualangan tanpa harus membeli perlengkapan sendiri.</p>
+            <p>Kami menyediakan berbagai perlengkapan berkualitas tinggi seperti tenda, carrier, matras, kompor portable, dan perlengkapan lainnya yang siap menemani setiap perjalanan Anda mendaki atau sekadar bersantai di alam bebas.</p>
+            <p>Dengan pelayanan yang ramah, harga yang transparan, dan perlengkapan yang selalu terawat serta bersih, Aurora Outdoor berkomitmen untuk memberikan pengalaman terbaik dan aman bagi setiap pelanggan.</p>
+          </div>
+        </div>
+
+        <div class="container" style="max-width: 1100px; padding-top: 20px;">
+           <div class="values-grid">
+              <div class="value-card">
+                <div class="value-icon">🏔️</div>
+                <h4>Passion for Nature</h4>
+                <p>Kami sangat mencintai alam dan berdedikasi mendukung setiap orang untuk bisa menikmati indahnya alam dengan nyaman dan aman.</p>
+              </div>
+              <div class="value-card">
+                <div class="value-icon">🛡️</div>
+                <h4>Kualitas Terjamin</h4>
+                <p>Seluruh peralatan kami bersihkan dan inspeksi sebelum dan sesudah disewakan untuk menjamin Anda mendapatkan yang terbaik.</p>
+              </div>
+              <div class="value-card">
+                <div class="value-icon">🤝</div>
+                <h4>Layanan Bersahabat</h4>
+                <p>Kami siap memberikan layanan konsultasi perlengkapan terbaik yang cocok untuk destinasi alam pilihan Anda.</p>
+              </div>
+           </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-wrapper">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor" /></a>
+            </div>
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+          </div>
+          <nav class="footer-links">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            </ul>
+          </nav>
+          <div class="footer-contact">
+            <h4>Terhubung dengan Kami</h4>
+            <div class="social-links footer-contact-links">
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank">📍 Google Maps</a>
+              <a href="https://wa.me/6281947229060" target="_blank">💬 WhatsApp</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank">📸 Instagram</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 Aurora Outdoor. Semua Hak Dilindungi.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>

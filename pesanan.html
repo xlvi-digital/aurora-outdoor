@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesanan | Aurora Outdoor</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <header class="header-wrapper">
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+      <div class="nav-container">
+        <div class="logo">
+          <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+        </div>
+        <ul class="nav-menu desktop">
+          <li><a href="product.html">Daftar Alat</a></li>
+          <li><a href="cara-booking.html">Cara Booking</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          <li><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="cart-button" @click="isDrawerOpen = true" type="button" aria-label="Buka keranjang">
+            <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+            <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+          </button>
+          <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+            <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+          </button>
+        </div>
+      </div>
+      <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+        <li><a href="product.html" @click="navOpen = false">Daftar Alat</a></li>
+        <li><a href="cara-booking.html" @click="navOpen = false">Cara Booking</a></li>
+        <li><a href="faq.html" @click="navOpen = false">FAQ</a></li>
+        <li><a href="tentang-kami.html" @click="navOpen = false">Tentang Kami</a></li>
+        <li><a href="testimonial.html" @click="navOpen = false">Testimonial</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="cart-main" x-data="cartApp" x-init="init()">
+    <!-- LEFT: Cart Items -->
+    <section class="cart-items-section">
+      <div class="cart-header">
+        Keranjang
+        <span class="cart-count" x-text="cart.length"></span>
+      </div>
+      <template x-if="cart.length === 0">
+        <div class="empty-cart">
+          <p>Keranjang kosong. Silakan pilih produk di halaman <a href="product.html">Daftar Alat</a>.</p>
+        </div>
+      </template>
+      <div class="cart-list" x-show="cart.length > 0">
+        <template x-for="item in cart" :key="item.id">
+          <div class="cart-card">
+            <img :src="item.img" :alt="item.name" class="cart-thumb" />
+            <div class="cart-info">
+              <div class="cart-name" x-text="item.name"></div>
+              <div class="cart-price">Rp <span x-text="item.price.toLocaleString()"></span> / hari</div>
+              <div class="cart-qty-row">
+                <button class="qty-btn" @click="decreaseQty(item)">–</button>
+                <span class="cart-qty" x-text="item.qty"></span>
+                <button class="qty-btn" @click="increaseQty(item)">+</button>
+                <span class="cart-total-item">Rp <span x-text="(item.price * item.qty).toLocaleString()"></span></span>
+                <button class="cart-remove-btn" @click="removeItem(item)">
+                  <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+                    <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12ZM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+    <!-- RIGHT: Order Summary & Rental Form -->
+    <aside class="cart-summary-section">
+      <div class="summary-card">
+        <div class="summary-title">Ringkasan Pesanan</div>
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value">Rp <span x-text="subtotal.toLocaleString()"></span></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Durasi Sewa</span>
+          <span class="summary-value" x-text="rentalDays + ' hari'"></span>
+        </div>
+        <div class="summary-row" x-show="form.deliveryMethod === 'antar'" style="color:#1976d2;">
+          <span class="summary-label">Biaya Antar</span>
+          <span class="summary-value">Rp <span x-text="deliveryFee.toLocaleString()"></span></span>
+        </div>
+        <div class="summary-row summary-grand">
+          <span>Total Pembayaran</span>
+          <span>Rp <span x-text="grandTotal.toLocaleString()"></span></span>
+        </div>
+        <div class="secure-booking">
+          <svg fill="none" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="#388e3c" stroke-width="2" />
+            <path d="M8 12.5l2.5 2.5 5-5" stroke="#388e3c" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Pemesanan aman & terpercaya
+        </div>
+      </div>
+      <form class="rental-form-card" @submit.prevent="submitOrder">
+        <div class="form-title">Formulir Penyewaan</div>
+        <div class="form-group">
+          <input type="text" class="form-input" x-model="form.name" placeholder=" " required />
+          <label class="form-label">Nama Lengkap</label>
+        </div>
+        <div class="form-group">
+          <input type="tel" class="form-input" x-model="form.phone" placeholder=" " required />
+          <label class="form-label">Nomor HP</label>
+        </div>
+        <div class="form-group">
+          <input type="date" class="form-input" x-model="form.startDate" placeholder=" " required
+            @change="updateRentalDays" />
+          <label class="form-label">Tanggal Mulai</label>
+        </div>
+        <div class="form-group">
+          <input type="date" class="form-input" x-model="form.endDate" placeholder=" " required
+            @change="updateRentalDays" />
+          <label class="form-label">Tanggal Selesai</label>
+        </div>
+        <div class="form-helper" x-show="rentalDays > 0">Durasi sewa: <span x-text="rentalDays"></span> hari</div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <!-- Not using the floating label for select as it's cleaner to just use standard label here -->
+          <label style="color: #15304b; font-weight:600; font-size: 1rem; margin-bottom: 0.5rem; display:block;">Metode
+            Pengambilan</label>
+          <select class="form-input" x-model="form.deliveryMethod" style="padding: 0.8rem 1rem;">
+            <option value="ambil">Ambil di Tempat</option>
+            <option value="antar">Diantar ke Alamat</option>
+          </select>
+        </div>
+
+        <template x-if="form.deliveryMethod === 'antar'">
+          <div
+            style="background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <!-- DUAL INPUT OPTIONS -->
+              <button type="button" @click="getLocationAndCalculate" class="form-btn"
+                style="background: #25d366; color: white; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span x-show="!isCalculating">📍 Deteksi Jarak Otomatis (GPS)</span>
+                <span x-show="isCalculating">⏳ Mendeteksi...</span>
+              </button>
+              <div class="form-helper" style="text-align: center; margin-top: 0;">atau isi manual jarak dan link Google
+                Maps Anda</div>
+            </div>
+
+            <div class="form-group">
+              <input type="number" step="0.1" min="1" class="form-input" x-model="form.deliveryDistance"
+                placeholder=" " />
+              <label class="form-label">Estimasi Jarak (km)</label>
+            </div>
+            <div class="form-helper" style="margin-top:-0.5rem; margin-bottom: 1.5rem; color:#1976d2;">Tarif: Rp20.000
+              per 5 km. <span x-show="form.deliveryDistance > 0">Biaya pengantaran Anda: <strong>Rp <span
+                    x-text="deliveryFee.toLocaleString()"></span></strong></span></div>
+
+            <div class="form-group">
+              <input type="url" class="form-input" x-model="form.deliveryMapLink" placeholder=" " />
+              <label class="form-label">Link Google Maps (Opsional)</label>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <textarea rows="3" class="form-input" x-model="form.deliveryAddress" placeholder=" "
+                style="resize:vertical;"></textarea>
+              <label class="form-label">Alamat Lengkap (Patokan)</label>
+            </div>
+          </div>
+        </template>
+        <div class="form-trust">
+          <span class="wa-badge">
+            <svg viewBox="0 0 32 32" fill="currentColor">
+              <path
+                d="M16 3C9.373 3 4 8.373 4 15c0 2.646.86 5.09 2.32 7.09L4 29l7.18-2.27A12.94 12.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3Zm0 22c-1.98 0-3.84-.58-5.39-1.58l-.38-.24-4.27 1.35 1.4-4.13-.25-.39A9.97 9.97 0 0 1 6 15c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10Zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.1-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.56-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.32.42-.48.14-.16.18-.28.28-.46.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.74.34-.25.27-.98.96-.98 2.34 0 1.38 1.01 2.72 1.15 2.91.14.18 1.99 3.04 4.83 4.15.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.18-.53-.32Z" />
+            </svg>
+            WhatsApp Verified
+          </span>
+          Data Anda aman & langsung ke admin
+        </div>
+        <button type="submit" class="form-btn">Konfirmasi & Kirim via WhatsApp</button>
+        <div class="form-helper">Setelah klik konfirmasi, Anda akan diarahkan ke WhatsApp untuk menyelesaikan pemesanan.
+        </div>
+      </form>
+    </aside>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-wrapper">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <a href="#hero" aria-label="Aurora Outdoor Home">
+              <img src="assets/img/logo.png" alt="Aurora Outdoor" />
+              saveCart() { localStorage.setItem("aurora_cart", JSON.stringify(this.cart)); },
+            </a>
+          </div>
+          <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman
+            outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+        </div>
+        <nav class="footer-links">
+          <h4>Navigasi</h4>
+          <ul>
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          </ul>
+        </nav>
+        <div class="footer-contact">
+          <h4>Terhubung dengan Kami</h4>
+          <div class="social-links footer-contact-links">
+            <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank" rel="noopener noreferrer"
+              title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Google Maps</a>
+            <a href="https://wa.me/6281947229060" target="_blank" rel="noopener noreferrer" title="Chat via WhatsApp"
+              aria-label="WhatsApp">💬 WhatsApp</a>
+            <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank" rel="noopener noreferrer"
+              title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
+          </div>
+        </div>
+        <div class="footer-cta">
+          <h4>Hubungi Kami</h4>
+          <a href="https://wa.me/6281947229060" target="_blank" class="footer-btn">💬 Chat WhatsApp</a>
+          <p class="cta-subtitle">Respons cepat, langsung ke nomor owner</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          <p>&copy; <span x-text="new Date().getFullYear()"></span> Aurora Outdoor. Semua Hak Dilindungi.</p>
+        </div>
+        <div class="footer-disclaimer">
+          <p><small>Ketersediaan alat dapat berubah sewaktu-waktu. Harap konfirmasi ketersediaan sebelum booking. Syarat
+              &amp; ketentuan berlaku untuk semua transaksi.</small></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="assets/js/app.js"></script>
+  <style>
+    body {
+      font-family: "Poppins", "Inter", Arial, sans-serif;
+      background: #f7fafc;
+      color: #223a4e;
+      margin: 0;
+    }
+
+    .cart-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem 1rem;
+    }
+
+    @media (min-width: 900px) {
+      .cart-main {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .cart-items-section {
+        width: 70%;
+      }
+
+      .cart-summary-section {
+        width: 30%;
+      }
+    }
+
+    .cart-items-section {
+      width: 100%;
+    }
+
+    .cart-header {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .cart-header .cart-count {
+      background: #1976d2;
+      color: #fff;
+      border-radius: 12px;
+      font-size: 1rem;
+      padding: 0.1rem 0.7rem;
+      font-weight: 600;
+    }
+
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .cart-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(34, 58, 78, 0.07);
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 1.2rem 1.2rem 1.2rem 1rem;
+      transition:
+        box-shadow 0.2s,
+        transform 0.2s;
+      position: relative;
+      min-height: 90px;
+      animation: fadeIn 0.4s;
+    }
+
+    .cart-card:hover {
+      box-shadow: 0 6px 24px rgba(25, 118, 210, 0.13);
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .cart-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #e3f3f7;
+      border: 1.5px solid #e0e7ef;
+      box-shadow: 0 1px 4px rgba(34, 58, 78, 0.06);
+    }
+
+    .cart-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .cart-name {
+      font-size: 1.08rem;
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+    }
+
+    .cart-price {
+      color: #1976d2;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .cart-qty-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 0.3rem;
+    }
+
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #e3f3f7;
+      color: #1976d2;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        background 0.2s,
+        color 0.2s;
+      box-shadow: 0 1px 4px rgba(25, 118, 210, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qty-btn:hover {
+      background: #1976d2;
+      color: #fff;
+    }
+
+    .cart-qty {
+      font-size: 1.1rem;
+      font-weight: 600;
+      min-width: 28px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .cart-total-item {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #388e3c;
+      margin-left: 1.2rem;
+    }
+
+    .cart-remove-btn {
+      background: none;
+      border: none;
+      color: #b0b8c1;
+      font-size: 1.3rem;
+      cursor: pointer;
+      margin-left: 0.7rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.2rem;
+    }
+
+    .cart-remove-btn:hover {
+      color: #d32f2f;
+    }
+
+    /* Order Summary */
+    .cart-summary-section {
+      width: 100%;
+      margin-top: 2.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .cart-summary-section {
+        margin-top: 0;
+        position: sticky;
+        top: 2rem;
+      }
+    }
+
+    .summary-card {
+      background: #eaf3f7;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(34, 58, 78, 0.06);
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      animation: fadeIn 0.5s;
+    }
+
+    .summary-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+      color: #15304b;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .summary-grand {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1976d2;
+      margin-top: 0.7rem;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-label {
+      color: #223a4e;
+      font-weight: 500;
+    }
+
+    .summary-value {
+      font-weight: 600;
+    }
+
+    /* Rental Form */
+    .rental-form-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(34, 58, 78, 0.06);
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      animation: fadeIn 0.6s;
+    }
+
+    .form-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #15304b;
+      margin-bottom: 0.7rem;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 1.3rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1.1rem 1rem 0.5rem 1rem;
+      border: 1.5px solid #bfc9d1;
+      border-radius: 12px;
+      background: #f7fafc;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: #1976d2;
+    }
+
+    .form-label {
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      color: #7a8ca3;
+      font-size: 1rem;
+      pointer-events: none;
+      background: transparent;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+
+    .form-input:focus+.form-label,
+    .form-input:not(:placeholder-shown)+.form-label {
+      top: -1rem;
+      left: 0.9rem;
+      font-size: 0.85rem;
+      color: #1976d2;
+      background: #f7fafc;
+      padding: 0 0.2rem;
+    }
+
+    .form-helper {
+      font-size: 0.97rem;
+      color: #7a8ca3;
+      margin-top: -0.7rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .form-trust {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.98rem;
+      color: #388e3c;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .wa-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: #25d366;
+      color: #fff;
+      font-size: 0.93rem;
+      border-radius: 8px;
+      padding: 0.1rem 0.7rem 0.1rem 0.5rem;
+      font-weight: 600;
+    }
+
+    .wa-badge svg {
+      width: 1.1em;
+      height: 1.1em;
+      margin-right: 0.2em;
+    }
+
+    .form-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 1rem 0;
+      font-size: 1.13rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+      transition:
+        background 0.2s,
+        transform 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .form-btn:hover {
+      background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    /* Trust indicator */
+    .secure-booking {
+      font-size: 0.97rem;
+      color: #1976d2;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .secure-booking svg {
+      width: 1.1em;
+      height: 1.1em;
+      color: #388e3c;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .cart-main {
+        flex-direction: column;
+      }
+
+      .cart-items-section,
+      .cart-summary-section {
+        width: 100%;
+      }
+
+      .cart-summary-section {
+        margin-top: 2.5rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cart-main {
+        padding: 1rem 0.2rem 2rem 0.2rem;
+      }
+
+      .cart-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.7rem;
+        padding: 1rem 0.7rem 1rem 0.7rem;
+      }
+
+      .cart-thumb {
+        width: 54px;
+        height: 54px;
+      }
+
+      .summary-card,
+      .rental-form-card {
+        padding: 1.2rem 0.7rem 1rem 0.7rem;
+      }
+    }
+  </style>
+  <script>
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("cartApp", () => ({
+        cart: [],
+        form: {
+          name: "",
+          phone: "",
+          startDate: "",
+          endDate: "",
+          deliveryMethod: "ambil",
+          deliveryDistance: "",
+          deliveryMapLink: "",
+          deliveryAddress: ""
+        },
+        rentalDays: 1,
+        isCalculating: false,
+        lapakCoords: {
+          lat: -6.816667, // Kordinat lapak Aurora Outdoor (contoh Cianjur)
+          lng: 107.135277
+        },
+        get subtotal() {
+          // Support both price_per_day and price for backward compatibility
+          return this.cart.reduce((sum, item) => {
+            const price = item.price_per_day !== undefined ? item.price_per_day : item.price;
+            return sum + price * item.qty;
+          }, 0);
+        },
+        get deliveryFee() {
+          if (this.form.deliveryMethod !== "antar") return 0;
+          const distance = parseFloat(this.form.deliveryDistance) || 0;
+          if (distance <= 0) return 0;
+          // Rp20.000 per 5 km
+          const multiplier = Math.ceil(distance / 5);
+          return multiplier * 20000;
+        },
+        get grandTotal() {
+          return (this.subtotal * this.rentalDays) + this.deliveryFee;
+        },
+        init() {
+          // Load cart from localStorage, and normalize field names
+          const stored = localStorage.getItem("aurora_cart");
+          let cartArr = stored ? JSON.parse(stored) : [];
+          // Normalize: always have id, name, price, qty, img
+          this.cart = cartArr.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price_per_day !== undefined ? item.price_per_day : item.price,
+            qty: item.qty,
+            img: item.img,
+          }));
+          this.updateRentalDays();
+        },
+        increaseQty(item) {
+          item.qty++;
+          this.saveCart();
+        },
+        decreaseQty(item) {
+          if (item.qty > 1) {
+            item.qty--;
+            this.saveCart();
+          } else {
+            this.confirmRemove(item);
+          }
+        },
+        removeItem(item) {
+          this.confirmRemove(item);
+        },
+        confirmRemove(item) {
+          Swal.fire({
+            title: "Hapus produk?",
+            text: "Apakah Anda yakin ingin menghapus produk ini dari keranjang?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Hapus",
+            cancelButtonText: "Batal"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.cart = this.cart.filter((i) => i.id !== item.id);
+              this.saveCart();
+            }
+          });
+        },
+        saveCart() {
+          localStorage.setItem("aurora_cart", JSON.stringify(this.cart));
+        },
+        updateRentalDays() {
+          if (this.form.startDate && this.form.endDate) {
+            const start = new Date(this.form.startDate);
+            const end = new Date(this.form.endDate);
+            const diff = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1);
+            this.rentalDays = diff;
+          } else {
+            this.rentalDays = 1;
+          }
+        },
+
+        // Auto GPS Location Function
+        getLocationAndCalculate() {
+          if (!navigator.geolocation) {
+            Swal.fire("Error", "Geolokasi tidak didukung oleh browser Anda.", "error");
+            return;
+          }
+
+          this.isCalculating = true;
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+
+              // Generate Maps Link based on current GPS
+              this.form.deliveryMapLink = `https://www.google.com/maps?q=${userLat},${userLng}`;
+
+              // Kalkulasi jarak menggunakan OSRM API (Router GRatits)
+              // URL format: /route/v1/driving/{longitude},{latitude};{longitude},{latitude}
+              const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${this.lapakCoords.lng},${this.lapakCoords.lat};${userLng},${userLat}?overview=false`;
+
+              fetch(osrmUrl)
+                .then(response => response.json())
+                .then(data => {
+                  if (data.code === "Ok" && data.routes.length > 0) {
+                    const distanceMeters = data.routes[0].distance;
+                    let distanceKm = (distanceMeters / 1000).toFixed(1);
+
+                    // Jaga batas jarak (misal max jarak masuk akal 100km, jika lebih mungkin error)
+                    if (distanceKm > 100) {
+                      Swal.fire("Jarak Terlalu Jauh", `Jarak terdeteksi ${distanceKm} km. Silakan atur manual jika dirasa keliru.`, "warning");
+                    } else if (distanceKm < 1) {
+                      distanceKm = 1; // Minimum 1 km logic jika terlalu dekat
+                    }
+
+                    this.form.deliveryDistance = distanceKm;
+                    Swal.fire("Berhasil", `Jarak estimasi ${distanceKm} km berhasil didapatkan!`, "success");
+                  } else {
+                    Swal.fire("Gagal", "Tidak dapat menghitung rute dari lokasi Anda ke Lapak.", "error");
+                  }
+                })
+                .catch(err => {
+                  console.error(err);
+                  Swal.fire("Error", "Gagal menghubungi server rute jalan.", "error");
+                })
+                .finally(() => {
+                  this.isCalculating = false;
+                });
+            },
+            (error) => {
+              this.isCalculating = false;
+              let msg = "Gagal mendapatkan lokasi.";
+              if (error.code === 1) msg = "Izin akses lokasi ditolak. Silakan izinkan browser atau isi manual.";
+              Swal.fire("Error", msg, "error");
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        },
+
+        submitOrder() {
+          if (this.form.deliveryMethod === "antar") {
+            if (!this.form.deliveryAddress || !this.form.deliveryDistance) {
+              alert("Lengkapi alamat patokan dan estimasi jarak pengantaran.");
+              return;
+            }
+          }
+
+          // WhatsApp message format
+          const items = this.cart.map((i) => `- ${i.name} x${i.qty} (Rp ${i.price.toLocaleString()}/hari)`).join("%0A");
+          let msg = `Halo Aurora Outdoor!%0ASaya ingin menyewa alat camping:%0A${items}%0A%0A`;
+
+          msg += `Durasi: ${this.rentalDays} hari%0A`;
+          msg += `Tanggal: ${this.form.startDate} s/d ${this.form.endDate}%0A`;
+          msg += `Nama: ${this.form.name}%0A`;
+          msg += `No HP: ${this.form.phone}%0A`;
+
+          msg += `Metode Pengambilan: ${this.form.deliveryMethod === 'antar' ? 'Diantar ke Alamat' : 'Ambil di Tempat'}%0A`;
+
+          if (this.form.deliveryMethod === 'antar') {
+            msg += `Estimasi Jarak: ${this.form.deliveryDistance} km%0A`;
+            if (this.form.deliveryMapLink) {
+              msg += `Titik Lokasi (Maps): ${this.form.deliveryMapLink}%0A`;
+            }
+            msg += `Alamat Patokan: ${this.form.deliveryAddress}%0A`;
+            msg += `Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
+          }
+
+          msg += `%0ATotal Pembayaran: Rp ${this.grandTotal.toLocaleString()}`;
+
+          window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
+        },
+      }));
+    });
+  </script>
+</body>
+
+</html>

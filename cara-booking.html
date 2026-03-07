@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cara Booking | Aurora Outdoor</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .page-hero {
+        position: relative;
+        height: 60vh;
+        min-height: 400px;
+        background: url("https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=1600") center/cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .page-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(11, 79, 138, 0.8), rgba(30, 30, 30, 0.7));
+      }
+      .page-hero-content {
+        position: relative;
+        z-index: 10;
+        color: #ffffff;
+        padding: 0 20px;
+        animation: fadeInUp 1s ease-out;
+      }
+      .page-hero-content h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .page-hero-content p {
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto;
+        color: #e0e7ef;
+      }
+      
+      .booking-steps-section {
+        padding: 80px 20px;
+        background-color: var(--color-bg);
+      }
+      
+      .steps-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      
+      .step-item {
+        display: flex;
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .step-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(11, 79, 138, 0.1);
+      }
+      
+      .step-number-container {
+        background: linear-gradient(135deg, var(--color-primary), #1565c0);
+        color: white;
+        width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      
+      .step-content {
+        padding: 30px;
+        flex: 1;
+      }
+      
+      .step-content h3 {
+        color: var(--color-primary);
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+      
+      .step-content p {
+        color: var(--color-muted);
+        line-height: 1.6;
+        font-size: 1.05rem;
+      }
+
+      @media (max-width: 600px) {
+        .step-item {
+          flex-direction: column;
+        }
+        .step-number-container {
+          width: 100%;
+          height: 80px;
+          font-size: 2.5rem;
+        }
+        .page-hero-content h1 {
+          font-size: 2.2rem;
+        }
+        .page-hero-content p {
+          font-size: 1.1rem;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER / NAVIGATION -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+          <!-- LOGO -->
+          <div class="logo">
+            <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+          </div>
+
+          <!-- MENU DESKTOP -->
+          <ul class="nav-menu desktop">
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html" style="color: var(--color-primary); font-weight: 700;">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
+          </ul>
+
+          <!-- RIGHT SIDE (CART & HAMBURGER) -->
+          <div class="nav-actions">
+            <!-- CART -->
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </a>
+
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+            </button>
+          </div>
+        </div>
+
+        <!-- MOBILE MENU -->
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="product.html">Daftar Alat</a></li>
+          <li><a href="cara-booking.html">Cara Booking</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="tentang-kami.html">Tentang Kami</a></li>
+          <li><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="page-hero">
+        <div class="page-hero-overlay"></div>
+        <div class="page-hero-content">
+          <h1>Cara Booking Perlengkapan Outdoor</h1>
+          <p>Sewa perlengkapan camping dengan mudah, cepat, dan aman.</p>
+        </div>
+      </section>
+
+      <!-- BOOKING STEPS -->
+      <section class="booking-steps-section">
+        <div class="steps-container">
+          <!-- STEP 1 -->
+          <div class="step-item">
+            <div class="step-number-container">1</div>
+            <div class="step-content">
+              <h3>Pilih Perlengkapan</h3>
+              <p>Jelajahi produk seperti tenda, carrier, sleeping bag, dan perlengkapan camping lainnya yang tersedia di katalog kami.</p>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="step-item">
+            <div class="step-number-container">2</div>
+            <div class="step-content">
+              <h3>Masukkan ke Keranjang</h3>
+              <p>Pilih perlengkapan yang ingin Anda sewa, tentukan jumlah barang, dan tambahkan ke dalam keranjang pesanan.</p>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="step-item">
+            <div class="step-number-container">3</div>
+            <div class="step-content">
+              <h3>Isi Data Pemesan</h3>
+              <p>Masukkan identitas Anda seperti nama lengkap, nomor WhatsApp yang aktif, serta tentukan tanggal mulai sewa dan tanggal pengembalian barang.</p>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="step-item">
+            <div class="step-number-container">4</div>
+            <div class="step-content">
+              <h3>Konfirmasi Pesanan</h3>
+              <p>Periksa kembali detail pesanan Anda, pastikan jumlah item, durasi persewaan, dan data diri sudah benar sebelum melanjutkan.</p>
+            </div>
+          </div>
+
+          <!-- STEP 5 -->
+          <div class="step-item">
+            <div class="step-number-container">5</div>
+            <div class="step-content">
+              <h3>Pembayaran</h3>
+              <p>Lakukan pembayaran sesuai instruksi yang diberikan oleh admin (Dapat melalui transfer bank atau e-wallet).</p>
+            </div>
+          </div>
+
+          <!-- STEP 6 -->
+          <div class="step-item">
+            <div class="step-number-container">6</div>
+            <div class="step-content">
+              <h3>Ambil atau Pengiriman</h3>
+              <p>Barang dapat diambil langsung ke lokasi Aurora Outdoor di Cianjur atau dikirim sesuai dengan kesepakatan bersama.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 60px;">
+          <a href="product.html" class="btn-primary" style="font-size: 1.1rem; padding: 15px 30px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 15px rgba(11,79,138,0.3);">Mulai Booking Sekarang</a>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-wrapper">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor" /></a>
+            </div>
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+          </div>
+          <nav class="footer-links">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            </ul>
+          </nav>
+          <div class="footer-contact">
+            <h4>Terhubung dengan Kami</h4>
+            <div class="social-links footer-contact-links">
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank">📍 Google Maps</a>
+              <a href="https://wa.me/6281947229060" target="_blank">💬 WhatsApp</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank">📸 Instagram</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 Aurora Outdoor. Semua Hak Dilindungi.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>

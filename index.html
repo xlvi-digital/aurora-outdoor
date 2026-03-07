@@ -21,6 +21,7 @@
     <!-- ==================== EXTERNAL LIBRARIES ==================== -->
     <!-- Alpine JS -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- ==================== CUSTOM SCRIPTS ==================== -->
     <script src="assets/js/app.js"></script>
@@ -47,26 +48,26 @@
         <div class="nav-container">
           <!-- LOGO -->
           <div class="logo">
-            <img src="assets/img/logo.png" alt="Aurora Outdoor Logo" />
+           <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
           </div>
 
           <!-- MENU DESKTOP -->
           <ul class="nav-menu desktop">
-            <li><a href="#products">Daftar Alat</a></li>
-            <li><a href="#how-booking">Cara Booking</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#about">Tentang Kami</a></li>
-            <li><a href="#testimonial">Testimonial</a></li>
+            <li><a href="product.html">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
           </ul>
 
           <!-- RIGHT SIDE (CART & HAMBURGER) -->
           <div class="nav-actions">
             <!-- CART -->
 
-            <button class="cart-button" @click="isDrawerOpen = true" type="button" aria-label="Buka keranjang">
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
               <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
               <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
-            </button>
+            </a>
 
             <!-- HAMBURGER MENU -->
             <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
@@ -77,11 +78,11 @@
 
         <!-- MOBILE MENU -->
         <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
-          <li><a href="#products" @click="navOpen = false">Daftar Alat</a></li>
-          <li><a href="#how-booking" @click="navOpen = false">Cara Booking</a></li>
-          <li><a href="#faq" @click="navOpen = false">FAQ</a></li>
-          <li><a href="#abaout" @click="navOpen = false">Tentang Kami</a></li>
-          <li><a href="#testimonial" @click="navOpen = false">Testimonial</a></li>
+          <li><a href="product.html" @click="navOpen = false">Daftar Alat</a></li>
+          <li><a href="cara-booking.html" @click="navOpen = false">Cara Booking</a></li>
+          <li><a href="faq.html" @click="navOpen = false">FAQ</a></li>
+          <li><a href="tentang-kami.html" @click="navOpen = false">Tentang Kami</a></li>
+          <li><a href="testimonial.html" @click="navOpen = false">Testimonial</a></li>
         </ul>
       </nav>
     </header>
@@ -150,43 +151,40 @@
           </div>
 
           <!-- FILTER & SEARCH WRAPPER -->
+          <!-- FILTER
           <div class="filter-search-wrapper">
-            <!-- FILTER -->
             <div class="filter">
               <template x-for="cat in categories" :key="cat.key">
                 <button @click="activeCategory = cat.key" :class="activeCategory === cat.key ? 'active' : ''" x-text="cat.label"></button>
               </template>
             </div>
 
-            <!-- SEARCH INPUT -->
+            SEARCH INPUT
             <div class="search-box">
               <input type="text" placeholder="🔍 Cari alat camping..." x-model="searchQuery" @input="currentPage = 1" class="search-input" />
             </div>
-          </div>
+          </div> -->
 
           <!-- GRID -->
           <div class="product-grid">
-            <template x-for="product in getPaginatedProducts()" :key="product.id">
+            <template x-for="cat in categories.filter(c => c.key !== 'all')" :key="cat.key">
               <div class="product-card">
-                <img :src="product.img" :alt="product.name" />
-                <h3 x-text="product.name"></h3>
-                <p class="price">Rp <span x-text="product.price.toLocaleString()"></span> / hari</p>
-                <button class="btn-add" @click="addToCart(product)">+ Tambah</button>
+                <template x-if="products.find(p => p.category === cat.key)">
+                  <div>
+                    <img :src="products.find(p => p.category === cat.key).img" :alt="products.find(p => p.category === cat.key).name" />
+                    <h3 x-text="products.find(p => p.category === cat.key).name"></h3>
+                    <p class="price">Rp <span x-text="products.find(p => p.category === cat.key).price.toLocaleString()"></span> / hari</p>
+                    <button class="btn-add" @click="addToCart(products.find(p => p.category === cat.key))">+ Tambah</button>
+               
+                  </div>
+                </template>
               </div>
             </template>
           </div>
 
           <!-- PAGINATION -->
-          <div class="pagination pagination-numbers" x-show="getTotalPages() > 1">
-            <template x-for="page in Array.from({length: getTotalPages()}, (_, i) => i + 1)" :key="page">
-              <button
-                type="button"
-                class="pagination-btn"
-                :class="{ active: currentPage === page }"
-                @click="currentPage = page"
-                x-text="page"
-              ></button>
-            </template>
+          <div class="view-all-wrapper" style="margin-top:2rem;text-align:center;">
+            <a href="product.html" class="btn-view-all" style="background:#2e7d32;color:#fff;padding:10px 24px;border-radius:4px;font-size:1rem;text-decoration:none;">Lihat Semua Produk</a>
           </div>
         </div>
       </div>
@@ -418,11 +416,11 @@
           <nav class="footer-links">
             <h4>Navigasi</h4>
             <ul>
-              <li><a href="#products">Daftar Alat</a></li>
-              <li><a href="#how-booking">Cara Booking</a></li>
-              <li><a href="#faq">FAQ</a></li>
-              <li><a href="#testimonial">Testimonial</a></li>
-              <li><a href="#about">Tentang Kami</a></li>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
             </ul>
           </nav>
 
@@ -523,11 +521,50 @@
           </div>
         </div>
 
+        <!-- DELIVERY SECTION -->
+        <div class="booking-section">
+          <h3>Metode Pengambilan</h3>
+          <div class="form-group">
+            <label for="deliveryMethod">Pilih Metode</label>
+            <select id="deliveryMethod" x-model="booking.deliveryMethod" style="width:100%; padding:0.8rem; border:1px solid #ccc; border-radius:8px; font-size:1rem;">
+              <option value="ambil">Ambil di Tempat</option>
+              <option value="antar">Diantar ke Alamat</option>
+            </select>
+          </div>
+
+          <!-- If Delivery -->
+          <template x-if="booking.deliveryMethod === 'antar'">
+            <div>
+              <div class="form-group" style="margin-top:10px;">
+                <label for="deliveryDistance">Estimasi Jarak (km)</label>
+                <input type="number" id="deliveryDistance" min="1" step="0.1" placeholder="Cth: 5" x-model="booking.deliveryDistance" />
+                <small style="color: #666; display:block; margin-top:4px;">Tarif ongkir: Rp20.000 per 5 km.</small>
+              </div>
+              <div class="form-group" style="margin-top:10px;">
+                <label for="deliveryAddress">Alamat Pengantaran</label>
+                <textarea id="deliveryAddress" rows="3" placeholder="Alamat lengkap tujuan..." x-model="booking.deliveryAddress" style="width:100%; border:1px solid #ccc; border-radius:8px; padding:0.8rem; font-family:inherit; resize:vertical;"></textarea>
+              </div>
+            </div>
+          </template>
+        </div>
+
         <!-- DRAWER FOOTER -->
         <div class="drawer-footer">
-          <div class="drawer-total">
-            Total:
-            <strong>Rp <span x-text="totalPrice.toLocaleString()"></span></strong>
+          <div class="drawer-total" style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; font-size:1rem; font-weight:normal;">
+              <span>Subtotal:</span>
+              <span>Rp <span x-text="(totalPrice - deliveryFee).toLocaleString()"></span></span>
+            </div>
+            <template x-if="booking.deliveryMethod === 'antar'">
+              <div style="display:flex; justify-content:space-between; font-size:1rem; font-weight:normal; color:#1976d2;">
+                <span>Biaya Antar:</span>
+                <span>Rp <span x-text="deliveryFee.toLocaleString()"></span></span>
+              </div>
+            </template>
+            <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold; border-top:1px solid #eee; padding-top:8px; margin-top:4px;">
+              <span>Total:</span>
+              <span>Rp <span x-text="totalPrice.toLocaleString()"></span></span>
+            </div>
           </div>
 
           <button class="checkout-btn" :disabled="totalPrice === 0" @click="checkoutWhatsApp()" type="button">

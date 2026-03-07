@@ -38,7 +38,7 @@
   }
 }
 .pagination-btn {
-  background: #fff;
+  background: transparent;
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary);
   border-radius: 6px;
@@ -53,10 +53,14 @@
   margin-right: 2px;
 }
 
-.pagination-btn.active,
-.pagination-btn:hover {
+.pagination-btn.active {
   background: var(--color-primary);
   color: #fff;
+  border-color: var(--color-primary);
+}
+.pagination-btn:not(.active):hover {
+  background: #f0f6fa;
+  color: var(--color-primary);
   border-color: var(--color-primary);
 }
 

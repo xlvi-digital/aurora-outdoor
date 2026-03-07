@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="id" x-data="rentalApp" x-init="init()">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semua Produk | Aurora Outdoor</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <!-- ==================== TOAST NOTIFICATION ==================== -->
+    <div class="toast-container">
+      <template x-for="toast in toasts" :key="toast.id">
+        <div class="toast" :class="toast.type" x-show="toast.show" x-transition>
+          <span x-text="toast.message"></span>
+        </div>
+      </template>
+    </div>
+    <!-- ==================== HEADER / NAVIGATION ==================== -->
+    <header class="header-wrapper">
+      <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+          <!-- LOGO -->
+          <div class="logo">
+            <a href="index.html"><img src="assets/img/logo.png" alt="Aurora Outdoor Logo" /></a>
+          </div>
+
+          <!-- MENU DESKTOP -->
+          <ul class="nav-menu desktop">
+            <li><a href="product.html" style="color: var(--color-primary); font-weight: 700;">Daftar Alat</a></li>
+            <li><a href="cara-booking.html">Cara Booking</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            <li><a href="testimonial.html">Testimonial</a></li>
+          </ul>
+
+          <!-- RIGHT SIDE (CART & HAMBURGER) -->
+          <div class="nav-actions">
+            <!-- CART -->
+
+            <a href="pesanan.html" class="cart-button" aria-label="Buka keranjang">
+              <img src="assets/img/cart.png" alt="Keranjang" class="icon-cart" />
+              <span class="cart-badge" x-show="cart.length > 0" x-text="cart.length"></span>
+            </a>
+
+            <!-- HAMBURGER MENU -->
+            <button class="hamburger" @click="navOpen = !navOpen" type="button" aria-label="Toggle menu">
+              <img src="assets/img/menu.png" alt="Menu" class="icon-menu" />
+            </button>
+          </div>
+        </div>
+
+        <!-- MOBILE MENU -->
+        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+          <li><a href="product.html" @click="navOpen = false">Daftar Alat</a></li>
+          <li><a href="cara-booking.html" @click="navOpen = false">Cara Booking</a></li>
+          <li><a href="faq.html" @click="navOpen = false">FAQ</a></li>
+          <li><a href="tentang-kami.html" @click="navOpen = false">Tentang Kami</a></li>
+          <li><a href="testimonial.html" @click="navOpen = false">Testimonial</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h1 class="heading heading-left">Semua Produk</h1>
+      <div class="filter-bar-redesign">
+        <div class="filter-redesign">
+          <template x-for="cat in categories" :key="cat.key">
+            <button @click="activeCategory = cat.key" :class="activeCategory === cat.key ? 'active' : ''" x-text="cat.label"></button>
+          </template>
+        </div>
+        <input type="text" x-model="searchQuery" placeholder="Cari alat camping..." class="search-input-redesign" />
+      </div>
+      <div class="product-grid-redesign">
+        <template x-for="product in getPaginatedProducts()" :key="product.id">
+          <div class="product-card-redesign">
+            <img :src="product.img" :alt="product.name" class="product-img-redesign" />
+            <div class="product-info-redesign">
+              <h2 class="product-name-redesign" x-text="product.name"></h2>
+              <p class="product-price-redesign" x-text="'Rp ' + product.price.toLocaleString()"></p>
+              <button @click="addToCart(product)" class="product-btn-redesign">Sewa/Detail</button>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="pagination-redesign" x-show="getTotalPages() > 1">
+        <button class="pagination-btn-redesign" :disabled="currentPage === 1" @click="previousPage()">&laquo;</button>
+        <template x-for="page in Array.from({length: getTotalPages()}, (_, i) => i + 1)" :key="page">
+          <button type="button" class="pagination-btn-redesign" :class="{ active: currentPage === page }" @click="currentPage = page" x-text="page"></button>
+        </template>
+        <button class="pagination-btn-redesign" :disabled="currentPage === getTotalPages()" @click="nextPage()">&raquo;</button>
+      </div>
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-wrapper">
+          <!-- BRAND INFO -->
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <a href="#hero" aria-label="Aurora Outdoor Home">
+                <img src="assets/img/logo.png" alt="Aurora Outdoor" />
+              </a>
+            </div>
+
+            <p>Penyedia jasa sewa perlengkapan camping berkualitas tinggi. Kami berkomitmen menghadirkan pengalaman outdoor yang nyaman, aman, dan menyenangkan untuk semua petualang.</p>
+
+            <!-- <div class="social-links">
+              <a href="https://www.google.com/maps/search/?api=1&query=Kp+Cikukulu+Nagrak+Bawah+Perempatan+POLRES+Cianjur" target="_blank" rel="noopener noreferrer" title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Lokasi</a>
+              <a href="https://wa.me/6281947229060" target="_blank" rel="noopener noreferrer" title="Chat via WhatsApp" aria-label="WhatsApp">💬 WhatsApp</a>
+              <a href="https://instagram.com/auroraoutdoor" target="_blank" rel="noopener noreferrer" title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
+            </div> -->
+          </div>
+
+          <!-- NAVIGATION LINKS -->
+          <nav class="footer-links">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="product.html">Daftar Alat</a></li>
+              <li><a href="cara-booking.html">Cara Booking</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a href="testimonial.html">Testimonial</a></li>
+              <li><a href="tentang-kami.html">Tentang Kami</a></li>
+            </ul>
+          </nav>
+
+          <div class="footer-contact">
+            <h4>Terhubung dengan Kami</h4>
+            <p class="contact-note">Ikuti update stok, tanyakan ketersediaan, atau lihat lokasi toko melalui tautan berikut.</p>
+
+            <div class="social-links footer-contact-links">
+              <a href="https://maps.app.goo.gl/V5SwCbW2GkZv8sbbA" target="_blank" rel="noopener noreferrer" title="Lihat Lokasi di Google Maps" aria-label="Google Maps">📍 Google Maps</a>
+              <a href="https://wa.me/6281947229060" target="_blank" rel="noopener noreferrer" title="Chat via WhatsApp" aria-label="WhatsApp">💬 WhatsApp</a>
+              <a href="https://www.instagram.com/auroraoutdoorcianjur/" target="_blank" rel="noopener noreferrer" title="Follow Instagram" aria-label="Instagram">📸 Instagram</a>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="footer-cta">
+            <h4>Hubungi Kami</h4>
+            <a href="https://wa.me/6281947229060" target="_blank" class="footer-btn">💬 Chat WhatsApp</a>
+            <p class="cta-subtitle">Respons cepat, langsung ke nomor owner</p>
+          </div>
+        </div>
+
+        <!-- FOOTER BOTTOM -->
+        <div class="footer-bottom">
+          <div class="footer-copyright">
+            <p>&copy; <span x-text="new Date().getFullYear()"></span> Aurora Outdoor. Semua Hak Dilindungi.</p>
+          </div>
+          <div class="footer-disclaimer">
+            <p><small>Ketersediaan alat dapat berubah sewaktu-waktu. Harap konfirmasi ketersediaan sebelum booking. Syarat &amp; ketentuan berlaku untuk semua transaksi.</small></p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+
+    <style>
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 0 1rem;
+      }
+      .heading-left {
+        font-size: 2.2rem;
+        margin-bottom: 1.2rem;
+        text-align: left;
+        font-weight: 700;
+        color: #223a4e;
+      }
+      .filter-bar-redesign {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        gap: 1rem;
+      }
+      .filter-redesign {
+        display: flex;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+      }
+      .filter-redesign button {
+        border: 1.5px solid #bfc9d1;
+        background: #f7fafc;
+        color: #223a4e;
+        border-radius: 20px;
+        padding: 0.45rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .filter-redesign button.active,
+      .filter-redesign button:hover {
+        background: #e3f3f7;
+        border-color: #2e7d32;
+        color: #2e7d32;
+      }
+      .search-input-redesign {
+        padding: 0.5rem 1.2rem;
+        border-radius: 20px;
+        border: 1.5px solid #bfc9d1;
+        font-size: 1rem;
+        min-width: 240px;
+        background: #f7fafc;
+        outline: none;
+        transition: border 0.2s;
+      }
+      .search-input-redesign:focus {
+        border-color: #2e7d32;
+      }
+      .product-grid-redesign {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      @media (max-width: 1024px) {
+        .product-grid-redesign {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 900px) {
+        .product-grid-redesign {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        .product-grid-redesign {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .container {
+          padding: 0.7rem 0.2rem 0 0.2rem;
+        }
+        .heading-left {
+          font-size: 1.3rem;
+        }
+      }
+      .product-card-redesign {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+        padding: 1rem 1rem 1.2rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: box-shadow 0.2s;
+        border: 1.5px solid #f0f6fa;
+      }
+      .product-card-redesign:hover {
+        box-shadow: 0 4px 18px rgba(46, 125, 50, 0.1);
+        border-color: #b2dfdb;
+      }
+      .product-img-redesign {
+        width: 100%;
+        max-width: 220px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 0.7rem;
+        background: #f7fafc;
+      }
+      .product-info-redesign {
+        text-align: center;
+        width: 100%;
+      }
+      .product-name-redesign {
+        font-size: 1.08rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        color: #223a4e;
+      }
+      .product-price-redesign {
+        color: #2e7d32;
+        font-weight: 700;
+        margin-bottom: 0.7rem;
+        font-size: 1.05rem;
+      }
+      .product-btn-redesign {
+        background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 0.5rem 1.3rem;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+        transition: background 0.2s;
+      }
+      .product-btn-redesign:hover {
+        background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
+      }
+      .pagination-redesign {
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-bottom: 2.5rem;
+      }
+      .pagination-btn-redesign {
+        min-width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: #f7fafc;
+        color: #2e7d32;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+        box-shadow: 0 1px 4px rgba(46, 125, 50, 0.07);
+      }
+      .pagination-btn-redesign.active,
+      .pagination-btn-redesign:hover {
+        background: #2e7d32;
+        color: #fff;
+      }
+      .footer {
+        position: static !important;
+        width: 100%;
+        margin-top: 2rem;
+        background: #15304b;
+        color: #fff;
+        padding: 2.5rem 0 0.5rem 0;
+      }
+      .footer-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 2.5rem;
+      }
+      .footer-brand,
+      .footer-links,
+      .footer-contact,
+      .footer-cta {
+        flex: 1 1 200px;
+        min-width: 180px;
+      }
+      .footer-logo img {
+        max-width: 120px;
+        margin-bottom: 0.7rem;
+      }
+      .footer-links h4,
+      .footer-contact h4,
+      .footer-cta h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.7rem;
+        color: #fff;
+      }
+      .footer-links ul {
+        list-style: none;
+        padding: 0;
+      }
+      .footer-links ul li {
+        margin-bottom: 0.4rem;
+      }
+      .footer-links ul li a {
+        color: #b2dfdb;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer-links ul li a:hover {
+        color: #fff;
+      }
+      .footer-contact-links a {
+        display: inline-block;
+        margin-right: 0.7rem;
+        color: #b2dfdb;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer-contact-links a:hover {
+        color: #fff;
+      }
+      .footer-btn {
+        background: linear-gradient(90deg, #2e7d32 60%, #4caf50 100%);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 0.5rem 1.3rem;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+      }
+      .footer-bottom {
+        border-top: 1px solid #25405e;
+        margin-top: 2.5rem;
+        padding-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: #b2dfdb;
+      }
+      @media (max-width: 900px) {
+        .footer-wrapper {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        .footer-bottom {
+          flex-direction: column;
+          gap: 0.7rem;
+        }
+      }
+      main.container {
+        margin-bottom: 2rem;
+      }
+    </style>
+  </body>
+</html>

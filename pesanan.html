@@ -940,6 +940,20 @@
           msg += `Mohon infokan ketersediaan alatnya ya min. Terima kasih! 🙏`;
 
           window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
+
+          // Reset Keranjang
+          this.cart = [];
+          this.saveCart();
+
+          // Optional: redirect to home or show sweet alert
+          Swal.fire({
+            title: "Pesanan Terkirim!",
+            text: "Terima kasih! Keranjang Anda telah dikosongkan.",
+            icon: "success",
+            confirmButtonColor: "#1976d2",
+          }).then(() => {
+            window.location.href = "index.html";
+          });
         },
       }));
     });

@@ -501,6 +501,10 @@ document.addEventListener("alpine:init", () => {
 
       window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
 
+      // Reset Keranjang
+      this.cart = [];
+      this.saveCart();
+
       this.isDrawerOpen = false;
     },
   }));

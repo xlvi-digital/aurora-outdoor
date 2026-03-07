@@ -38,7 +38,9 @@ document.addEventListener("alpine:init", () => {
       startDate: "",
       endDate: "",
       deliveryMethod: "ambil", // "ambil" or "antar"
-      deliveryDistance: 0,
+      deliveryDistance: "",
+      deliveryLat: "",
+      deliveryLng: "",
       deliveryAddress: "",
     },
 
@@ -245,6 +247,20 @@ document.addEventListener("alpine:init", () => {
         this.cart = JSON.parse(saved);
       }
 
+      const storedUser = localStorage.getItem("auroraUserData");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          this.booking.name = user.name || "";
+          this.booking.phone = user.phone || "";
+          this.booking.deliveryAddress = user.address || "";
+          this.booking.deliveryLat = user.lat || "";
+          this.booking.deliveryLng = user.lng || "";
+          // Note: distance needs to be recalculated or we can keep it empty to force using full checkout for map if they change address.
+          // But for now, we just sync the basic inputs.
+        } catch(e) {}
+      }
+
       this.$watch("isDrawerOpen", (value) => {
         if (value) {
           document.body.classList.add("no-scroll");
@@ -256,6 +272,18 @@ document.addEventListener("alpine:init", () => {
       this.$watch("activeCategory", () => {
         this.currentPage = 1;
       });
+    },
+
+    saveUserData() {
+      // Allow syncing back from drawer inputs as well
+      const dataToSave = {
+        name: this.booking.name,
+        phone: this.booking.phone,
+        address: this.booking.deliveryAddress,
+        lat: this.booking.deliveryLat,
+        lng: this.booking.deliveryLng
+      };
+      localStorage.setItem("auroraUserData", JSON.stringify(dataToSave));
     },
 
     saveCart() {
@@ -439,30 +467,39 @@ document.addEventListener("alpine:init", () => {
         }
       }
 
-      let message = `Halo Aurora Outdoor,%0A%0A`;
-      message += `Nama: ${this.booking.name}%0A`;
-      message += `No HP: ${this.booking.phone}%0A`;
-      message += `Tanggal: ${this.booking.startDate} - ${this.booking.endDate}%0A`;
-      message += `Durasi: ${this.rentalDays} hari%0A`;
+      let msg = `⛺ *Halo Admin Aurora Outdoor!* ⛺%0A%0ASaya ingin menyewa alat camping. Berikut detailnya:%0A%0A`;
       
-      message += `Metode Pengambilan: ${this.booking.deliveryMethod === 'antar' ? 'Diantar ke Alamat' : 'Ambil di Tempat'}%0A`;
-      if (this.booking.deliveryMethod === 'antar') {
-          message += `Alamat Pengantaran: ${this.booking.deliveryAddress}%0A`;
-          message += `Estimasi Jarak: ${this.booking.deliveryDistance} km%0A`;
-      }
-      message += `%0ADetail Pesanan:%0A`;
+      msg += `*📦 DETAIL BARANG:*%0A`;
+      const items = this.cart.map((i) => `▪️ ${i.name} (x${i.qty}) - Rp ${i.price.toLocaleString()}/hari`).join("%0A");
+      msg += `${items}%0A%0A`;
 
-      this.cart.forEach((item) => {
-        message += `- ${item.name} x${item.qty} (Rp ${item.price.toLocaleString()}/hari)%0A`;
-      });
+      msg += `*📅 WAKTU SEWA:*%0A`;
+      msg += `▪️ Tanggal: ${this.booking.startDate} s/d ${this.booking.endDate}%0A`;
+      msg += `▪️ Durasi: ${this.rentalDays} hari%0A%0A`;
       
+      msg += `*👤 DATA PEMESAN:*%0A`;
+      msg += `▪️ Nama: ${this.booking.name}%0A`;
+      msg += `▪️ No WA: ${this.booking.phone}%0A%0A`;
+
+      msg += `*🚚 PENGAMBILAN BARANG:*%0A`;
+      msg += `▪️ Pilihan: ${this.booking.deliveryMethod === 'antar' ? '🛵 Diantar ke Alamat' : '🏪 Ambil di Lapak'}%0A`;
+
       if (this.booking.deliveryMethod === 'antar') {
-           message += `%0ABiaya Antar: Rp ${this.deliveryFee.toLocaleString()}`;
+          msg += `▪️ Estimasi Jarak: ${this.booking.deliveryDistance} km%0A`;
+          msg += `▪️ Alamat Tujuan: ${this.booking.deliveryAddress}%0A`;
+          if (this.booking.deliveryLat && this.booking.deliveryLng) {
+            msg += `▪️ Titik Lokasi (Map): https://www.google.com/maps?q=${this.booking.deliveryLat},${this.booking.deliveryLng}%0A`;
+          }
+          msg += `▪️ Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
       }
 
-      message += `%0ATotal: Rp ${this.totalPrice.toLocaleString()}`;
+      msg += `%0A-------------------------------%0A`;
+      msg += `*💵 TOTAL KESELURUHAN: Rp ${this.totalPrice.toLocaleString()}*%0A`;
+      msg += `-------------------------------%0A%0A`;
+          
+      msg += `Mohon infokan ketersediaan alatnya ya min. Terima kasih! 🙏`;
 
-      window.open(`https://wa.me/6281947229060?text=${message}`, "_blank");
+      window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
 
       this.isDrawerOpen = false;
     },

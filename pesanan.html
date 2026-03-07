@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pesanan | Aurora Outdoor</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -111,11 +113,11 @@
       <form class="rental-form-card" @submit.prevent="submitOrder">
         <div class="form-title">Formulir Penyewaan</div>
         <div class="form-group">
-          <input type="text" class="form-input" x-model="form.name" placeholder=" " required />
+          <input type="text" class="form-input" x-model="form.name" @input="saveUserData" placeholder=" " required />
           <label class="form-label">Nama Lengkap</label>
         </div>
         <div class="form-group">
-          <input type="tel" class="form-input" x-model="form.phone" placeholder=" " required />
+          <input type="tel" class="form-input" x-model="form.phone" @input="saveUserData" placeholder=" " required />
           <label class="form-label">Nomor HP</label>
         </div>
         <div class="form-group">
@@ -140,42 +142,36 @@
           </select>
         </div>
 
-        <template x-if="form.deliveryMethod === 'antar'">
-          <div
+        <div x-show="form.deliveryMethod === 'antar'" x-transition
             style="background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
 
             <div class="form-group" style="margin-bottom: 1rem;">
-              <!-- DUAL INPUT OPTIONS -->
+              <label style="color: #15304b; font-weight:600; font-size: 1rem; margin-bottom: 0.5rem; display:block;">Pilih Lokasi di Peta</label>
+              <div id="map" style="height: 300px; border-radius: 12px; border: 1px solid #ccc; z-index: 1;"></div>
+              
               <button type="button" @click="getLocationAndCalculate" class="form-btn"
-                style="background: #25d366; color: white; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <span x-show="!isCalculating">📍 Deteksi Jarak Otomatis (GPS)</span>
+                style="background: #25d366; color: white; margin-top: 0.8rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span x-show="!isCalculating">📍 Deteksi Lokasi Saat Ini (GPS)</span>
                 <span x-show="isCalculating">⏳ Mendeteksi...</span>
               </button>
-              <div class="form-helper" style="text-align: center; margin-top: 0;">atau isi manual jarak dan link Google
-                Maps Anda</div>
             </div>
 
             <div class="form-group">
-              <input type="number" step="0.1" min="1" class="form-input" x-model="form.deliveryDistance"
-                placeholder=" " />
+              <input type="text" class="form-input" x-model="form.deliveryDistance" readonly style="background: #e9ecef; cursor: not-allowed;" placeholder=" " />
               <label class="form-label">Estimasi Jarak (km)</label>
             </div>
             <div class="form-helper" style="margin-top:-0.5rem; margin-bottom: 1.5rem; color:#1976d2;">Tarif: Rp20.000
               per 5 km. <span x-show="form.deliveryDistance > 0">Biaya pengantaran Anda: <strong>Rp <span
                     x-text="deliveryFee.toLocaleString()"></span></strong></span></div>
 
-            <div class="form-group">
-              <input type="url" class="form-input" x-model="form.deliveryMapLink" placeholder=" " />
-              <label class="form-label">Link Google Maps (Opsional)</label>
-            </div>
-
             <div class="form-group" style="margin-bottom:0;">
-              <textarea rows="3" class="form-input" x-model="form.deliveryAddress" placeholder=" "
+              <textarea rows="3" class="form-input" x-model="form.deliveryAddress" placeholder=" " @input="saveUserData"
                 style="resize:vertical;"></textarea>
-              <label class="form-label">Alamat Lengkap (Patokan)</label>
+              <label class="form-label">Alamat Lengkap Pengantaran</label>
             </div>
+            <input type="hidden" x-model="form.deliveryLat">
+            <input type="hidden" x-model="form.deliveryLng">
           </div>
-        </template>
         <div class="form-trust">
           <span class="wa-badge">
             <svg viewBox="0 0 32 32" fill="currentColor">
@@ -675,14 +671,17 @@
           endDate: "",
           deliveryMethod: "ambil",
           deliveryDistance: "",
-          deliveryMapLink: "",
+          deliveryLat: "",
+          deliveryLng: "",
           deliveryAddress: ""
         },
         rentalDays: 1,
         isCalculating: false,
+        mapInstance: null,
+        markerInstance: null,
         lapakCoords: {
-          lat: -6.816667, // Kordinat lapak Aurora Outdoor (contoh Cianjur)
-          lng: 107.135277
+          lat: -6.818042, // Koordinat Kp Cikukulu Nagrak (Dekat Perempatan Polres)
+          lng: 107.129337
         },
         get subtotal() {
           // Support both price_per_day and price for backward compatibility
@@ -703,6 +702,21 @@
           return (this.subtotal * this.rentalDays) + this.deliveryFee;
         },
         init() {
+          // Load User Data from localStorage
+          const storedUser = localStorage.getItem("auroraUserData");
+          if (storedUser) {
+            try {
+              const data = JSON.parse(storedUser);
+              this.form.name = data.name || "";
+              this.form.phone = data.phone || "";
+              this.form.deliveryAddress = data.address || "";
+              if (data.lat && data.lng) {
+                this.form.deliveryLat = data.lat;
+                this.form.deliveryLng = data.lng;
+              }
+            } catch(e){ console.error(e); }
+          }
+
           // Load cart from localStorage, and normalize field names
           const stored = localStorage.getItem("aurora_cart");
           let cartArr = stored ? JSON.parse(stored) : [];
@@ -715,6 +729,25 @@
             img: item.img,
           }));
           this.updateRentalDays();
+
+          // Watch for delivery method changes
+          this.$watch('form.deliveryMethod', (value) => {
+             if (value === 'antar') {
+                setTimeout(() => {
+                   this.initMap();
+                }, 100);
+             }
+          });
+        },
+        saveUserData() {
+          const dataToSave = {
+            name: this.form.name,
+            phone: this.form.phone,
+            address: this.form.deliveryAddress,
+            lat: this.form.deliveryLat,
+            lng: this.form.deliveryLng
+          };
+          localStorage.setItem("auroraUserData", JSON.stringify(dataToSave));
         },
         increaseQty(item) {
           item.qty++;
@@ -762,6 +795,77 @@
           }
         },
 
+        // LEAFLET MAP & OSRM API INTEGRATION
+        initMap() {
+          if (this.mapInstance) {
+            this.mapInstance.invalidateSize();
+            return;
+          }
+          
+          // Default location if no user data (Alun-Alun Cianjur approximate)
+          let startLat = parseFloat(this.form.deliveryLat) || -6.816667;
+          let startLng = parseFloat(this.form.deliveryLng) || 107.135277;
+
+          this.mapInstance = L.map('map').setView([startLat, startLng], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(this.mapInstance);
+
+          this.markerInstance = L.marker([startLat, startLng], { draggable: true }).addTo(this.mapInstance);
+
+          this.markerInstance.on('dragend', (e) => {
+            const pos = e.target.getLatLng();
+            this.updateLocation(pos.lat, pos.lng);
+          });
+
+          this.mapInstance.on('click', (e) => {
+            this.markerInstance.setLatLng(e.latlng);
+            this.updateLocation(e.latlng.lat, e.latlng.lng);
+          });
+          
+          if (this.form.deliveryLat && this.form.deliveryLng) {
+             this.calculateRoute(this.form.deliveryLat, this.form.deliveryLng);
+          }
+        },
+
+        updateLocation(lat, lng) {
+          this.form.deliveryLat = lat;
+          this.form.deliveryLng = lng;
+          this.reverseGeocode(lat, lng);
+          this.calculateRoute(lat, lng);
+          this.saveUserData();
+        },
+
+        reverseGeocode(lat, lng) {
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.display_name) {
+                this.form.deliveryAddress = data.display_name;
+                this.saveUserData();
+              }
+            })
+            .catch(err => console.error(err));
+        },
+
+        calculateRoute(userLat, userLng) {
+          const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${this.lapakCoords.lng},${this.lapakCoords.lat};${userLng},${userLat}?overview=false`;
+          fetch(osrmUrl)
+            .then(response => response.json())
+            .then(data => {
+              if (data.code === "Ok" && data.routes.length > 0) {
+                let distanceKm = (data.routes[0].distance / 1000).toFixed(1);
+                if (distanceKm > 100) {
+                  Swal.fire("Peringatan", `Jarak terdeteksi ${distanceKm} km. Yakin lokasinya benar?`, "warning");
+                } else if (distanceKm < 1) {
+                  distanceKm = 1;
+                }
+                this.form.deliveryDistance = distanceKm;
+              }
+            })
+            .catch(err => console.error(err));
+        },
+
         // Auto GPS Location Function
         getLocationAndCalculate() {
           if (!navigator.geolocation) {
@@ -773,48 +877,21 @@
 
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              const userLat = position.coords.latitude;
-              const userLng = position.coords.longitude;
-
-              // Generate Maps Link based on current GPS
-              this.form.deliveryMapLink = `https://www.google.com/maps?q=${userLat},${userLng}`;
-
-              // Kalkulasi jarak menggunakan OSRM API (Router GRatits)
-              // URL format: /route/v1/driving/{longitude},{latitude};{longitude},{latitude}
-              const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${this.lapakCoords.lng},${this.lapakCoords.lat};${userLng},${userLat}?overview=false`;
-
-              fetch(osrmUrl)
-                .then(response => response.json())
-                .then(data => {
-                  if (data.code === "Ok" && data.routes.length > 0) {
-                    const distanceMeters = data.routes[0].distance;
-                    let distanceKm = (distanceMeters / 1000).toFixed(1);
-
-                    // Jaga batas jarak (misal max jarak masuk akal 100km, jika lebih mungkin error)
-                    if (distanceKm > 100) {
-                      Swal.fire("Jarak Terlalu Jauh", `Jarak terdeteksi ${distanceKm} km. Silakan atur manual jika dirasa keliru.`, "warning");
-                    } else if (distanceKm < 1) {
-                      distanceKm = 1; // Minimum 1 km logic jika terlalu dekat
-                    }
-
-                    this.form.deliveryDistance = distanceKm;
-                    Swal.fire("Berhasil", `Jarak estimasi ${distanceKm} km berhasil didapatkan!`, "success");
-                  } else {
-                    Swal.fire("Gagal", "Tidak dapat menghitung rute dari lokasi Anda ke Lapak.", "error");
-                  }
-                })
-                .catch(err => {
-                  console.error(err);
-                  Swal.fire("Error", "Gagal menghubungi server rute jalan.", "error");
-                })
-                .finally(() => {
-                  this.isCalculating = false;
-                });
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              
+              if (this.mapInstance) {
+                this.mapInstance.setView([lat, lng], 15);
+                this.markerInstance.setLatLng([lat, lng]);
+              }
+              
+              this.updateLocation(lat, lng);
+              this.isCalculating = false;
             },
             (error) => {
               this.isCalculating = false;
               let msg = "Gagal mendapatkan lokasi.";
-              if (error.code === 1) msg = "Izin akses lokasi ditolak. Silakan izinkan browser atau isi manual.";
+              if (error.code === 1) msg = "Izin akses lokasi ditolak. Silakan izinkan browser atau geser pin manual di map.";
               Swal.fire("Error", msg, "error");
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -830,26 +907,37 @@
           }
 
           // WhatsApp message format
-          const items = this.cart.map((i) => `- ${i.name} x${i.qty} (Rp ${i.price.toLocaleString()}/hari)`).join("%0A");
-          let msg = `Halo Aurora Outdoor!%0ASaya ingin menyewa alat camping:%0A${items}%0A%0A`;
+          let msg = `⛺ *Halo Admin Aurora Outdoor!* ⛺%0A%0ASaya ingin menyewa alat camping. Berikut detailnya:%0A%0A`;
+          
+          msg += `*📦 DETAIL BARANG:*%0A`;
+          const items = this.cart.map((i) => `▪️ ${i.name} (x${i.qty}) - Rp ${i.price.toLocaleString()}/hari`).join("%0A");
+          msg += `${items}%0A%0A`;
 
-          msg += `Durasi: ${this.rentalDays} hari%0A`;
-          msg += `Tanggal: ${this.form.startDate} s/d ${this.form.endDate}%0A`;
-          msg += `Nama: ${this.form.name}%0A`;
-          msg += `No HP: ${this.form.phone}%0A`;
+          msg += `*📅 WAKTU SEWA:*%0A`;
+          msg += `▪️ Tanggal: ${this.form.startDate} s/d ${this.form.endDate}%0A`;
+          msg += `▪️ Durasi: ${this.rentalDays} hari%0A%0A`;
+          
+          msg += `*👤 DATA PEMESAN:*%0A`;
+          msg += `▪️ Nama: ${this.form.name}%0A`;
+          msg += `▪️ No WA: ${this.form.phone}%0A%0A`;
 
-          msg += `Metode Pengambilan: ${this.form.deliveryMethod === 'antar' ? 'Diantar ke Alamat' : 'Ambil di Tempat'}%0A`;
+          msg += `*🚚 PENGAMBILAN BARANG:*%0A`;
+          msg += `▪️ Pilihan: ${this.form.deliveryMethod === 'antar' ? '🛵 Diantar ke Alamat' : '🏪 Ambil di Lapak'}%0A`;
 
           if (this.form.deliveryMethod === 'antar') {
-            msg += `Estimasi Jarak: ${this.form.deliveryDistance} km%0A`;
-            if (this.form.deliveryMapLink) {
-              msg += `Titik Lokasi (Maps): ${this.form.deliveryMapLink}%0A`;
+            msg += `▪️ Estimasi Jarak: ${this.form.deliveryDistance} km%0A`;
+            msg += `▪️ Alamat Tujuan: ${this.form.deliveryAddress}%0A`;
+            if (this.form.deliveryLat && this.form.deliveryLng) {
+               msg += `▪️ Titik Lokasi (Map): https://www.google.com/maps?q=${this.form.deliveryLat},${this.form.deliveryLng}%0A`;
             }
-            msg += `Alamat Patokan: ${this.form.deliveryAddress}%0A`;
-            msg += `Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
+            msg += `▪️ Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
           }
 
-          msg += `%0ATotal Pembayaran: Rp ${this.grandTotal.toLocaleString()}`;
+          msg += `%0A-------------------------------%0A`;
+          msg += `*💵 TOTAL KESELURUHAN: Rp ${this.grandTotal.toLocaleString()}*%0A`;
+          msg += `-------------------------------%0A%0A`;
+          
+          msg += `Mohon infokan ketersediaan alatnya ya min. Terima kasih! 🙏`;
 
           window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
         },

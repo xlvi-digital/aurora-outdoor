@@ -160,7 +160,7 @@
               <input type="text" class="form-input" x-model="form.deliveryDistance" readonly style="background: #e9ecef; cursor: not-allowed;" placeholder=" " />
               <label class="form-label">Estimasi Jarak (km)</label>
             </div>
-            <div class="form-helper" style="margin-top:-0.5rem; margin-bottom: 1.5rem; color:#1976d2;">Tarif: Rp20.000
+            <div class="form-helper" style="margin-top:-0.5rem; margin-bottom: 1.5rem; color:#1976d2;">Tarif: Rp12.000
               per 5 km. <span x-show="form.deliveryDistance > 0">Biaya pengantaran Anda: <strong>Rp <span
                     x-text="deliveryFee.toLocaleString()"></span></strong></span></div>
 
@@ -583,7 +583,7 @@
 
     .form-btn {
       width: 100%;
-      background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+      background: var(--color-primary, #007bff);
       color: #fff;
       border: none;
       border-radius: 16px;
@@ -592,16 +592,14 @@
       font-weight: 700;
       cursor: pointer;
       margin-top: 0.5rem;
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
-      transition:
-        background 0.2s,
-        transform 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+      transition: all 0.3s ease;
       letter-spacing: 0.5px;
     }
 
     .form-btn:hover {
-      background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
-      transform: translateY(-2px) scale(1.01);
+      background: #0069d9;
+      transform: translateY(-2px);
     }
 
     /* Trust indicator */
@@ -694,9 +692,9 @@
           if (this.form.deliveryMethod !== "antar") return 0;
           const distance = parseFloat(this.form.deliveryDistance) || 0;
           if (distance <= 0) return 0;
-          // Rp20.000 per 5 km
+          // Rp12.000 per 5 km
           const multiplier = Math.ceil(distance / 5);
-          return multiplier * 20000;
+          return multiplier * 12000;
         },
         get grandTotal() {
           return (this.subtotal * this.rentalDays) + this.deliveryFee;

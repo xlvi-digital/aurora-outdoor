@@ -139,13 +139,13 @@
             </button>
           </div>
         </div>
-        <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
-          <li><a href="product.html">Daftar Alat</a></li>
-          <li><a href="cara-booking.html">Cara Booking</a></li>
-          <li><a href="faq.html">FAQ</a></li>
-          <li><a href="tentang-kami.html">Tentang Kami</a></li>
-          <li><a href="testimonial.html">Testimonial</a></li>
-        </ul>
+          <ul class="nav-menu mobile" :class="{ 'active': navOpen }">
+            <li><a href="product.html" @click="navOpen = false">Daftar Alat</a></li>
+            <li><a href="cara-booking.html" @click="navOpen = false">Cara Booking</a></li>
+            <li><a href="faq.html" @click="navOpen = false">FAQ</a></li>
+            <li><a href="tentang-kami.html" @click="navOpen = false">Tentang Kami</a></li>
+            <li><a href="testimonial.html" @click="navOpen = false">Testimonial</a></li>
+          </ul>
       </nav>
     </header>
 

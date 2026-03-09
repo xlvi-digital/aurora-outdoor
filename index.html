@@ -99,8 +99,8 @@
         </p>
 
         <div class="hero-buttons">
-          <a href="#products" class="btn-primary btn-lg">🔍 Lihat Katalog Alat</a>
-          <a href="https://wa.me/6281947229060" target="_blank" class="btn-secondary btn-lg">💬 Chat WhatsApp</a>
+          <a href="#products" class="btn btn-p">🔍 Lihat Katalog Alat</a>
+          <a href="https://wa.me/6281947229060" target="_blank" class="btn btn-s">💬 Chat WhatsApp</a>
         </div>
       </div>
     </section>
@@ -174,7 +174,7 @@
                     <img :src="products.find(p => p.category === cat.key).img" :alt="products.find(p => p.category === cat.key).name" />
                     <h3 x-text="products.find(p => p.category === cat.key).name"></h3>
                     <p class="price">Rp <span x-text="products.find(p => p.category === cat.key).price.toLocaleString()"></span> / hari</p>
-                    <button class="btn-add" @click="addToCart(products.find(p => p.category === cat.key))">+ Tambah</button>
+                    <button class="btn btn-p btn-sm btn-block" @click="addToCart(products.find(p => p.category === cat.key))">+ Tambah</button>
                
                   </div>
                 </template>
@@ -184,7 +184,7 @@
 
           <!-- PAGINATION -->
           <div class="view-all-wrapper" style="margin-top:2rem;text-align:center;">
-            <a href="product.html" class="btn-view-all" style="background:#2e7d32;color:#fff;padding:10px 24px;border-radius:4px;font-size:1rem;text-decoration:none;">Lihat Semua Produk</a>
+            <a href="product.html" class="btn btn-p">Lihat Semua Produk</a>
           </div>
         </div>
       </div>
@@ -386,10 +386,41 @@
         <div class="cta-content">
           <h2>Siap Memulai Petualanganmu?</h2>
           <p>Booking sekarang dan dapatkan pengalaman outdoor yang tak terlupakan bersama Aurora Outdoor.</p>
-          <a href="https://wa.me/6281947229060" target="_blank" class="btn-primary btn-lg">💬 Chat WhatsApp Sekarang</a>
+          <a href="https://wa.me/6281947229060" target="_blank" class="btn btn-p">💬 Chat WhatsApp Sekarang</a>
         </div>
       </div>
     </section>
+
+    <!-- ==================== PRODUCT DETAIL MODAL ==================== -->
+    <div class="modal-overlay" x-show="isModalOpen" @click="isModalOpen = false" x-transition.opacity></div>
+    <div class="modal" x-show="isModalOpen" x-transition:enter="modal-enter" x-transition:enter-start="modal-enter-start" x-transition:enter-end="modal-enter-end">
+      <template x-if="selectedProduct">
+        <div class="modal-content">
+          <button class="modal-close" @click="isModalOpen = false">&times;</button>
+          <div class="modal-body">
+            <div class="modal-image">
+              <img :src="selectedProduct.img" :alt="selectedProduct.name">
+            </div>
+            <div class="modal-info">
+              <h2 x-text="selectedProduct.name"></h2>
+              <p class="modal-category" x-text="selectedProduct.category.toUpperCase()"></p>
+              <p class="modal-price">Rp <span x-text="selectedProduct.price.toLocaleString()"></span> / hari</p>
+              <div class="modal-description">
+                <p x-text="selectedProduct.description"></p>
+                <ul>
+                  <li>✅ Bersih & Higienis</li>
+                  <li>✅ Kondisi Prima</li>
+                  <li>✅ Mudah Digunakan</li>
+                </ul>
+              </div>
+              <div class="modal-actions">
+                <button class="btn btn-p" @click="addToCart(selectedProduct); isModalOpen = false">🛒 Tambah ke Keranjang</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
 
     <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
@@ -438,7 +469,7 @@
           <!-- CTA -->
           <div class="footer-cta">
             <h4>Hubungi Kami</h4>
-            <a href="https://wa.me/6281947229060" target="_blank" class="footer-btn">💬 Chat WhatsApp</a>
+            <a href="https://wa.me/6281947229060" target="_blank" class="btn btn-s">💬 Chat WhatsApp</a>
             <p class="cta-subtitle">Respons cepat, langsung ke nomor owner</p>
           </div>
         </div>
@@ -538,7 +569,7 @@
               <div class="form-group" style="margin-top:10px;">
                 <label for="deliveryDistance">Estimasi Jarak (km)</label>
                 <input type="number" id="deliveryDistance" min="1" step="0.1" placeholder="Cth: 5" x-model="booking.deliveryDistance" />
-                <small style="color: #666; display:block; margin-top:4px;">Tarif ongkir: Rp20.000 per 5 km.</small>
+                <small style="color: #666; display:block; margin-top:4px;">Tarif ongkir: Rp12.000 per 5 km.</small>
               </div>
               <div class="form-group" style="margin-top:10px;">
                 <label for="deliveryAddress">Alamat Pengantaran</label>

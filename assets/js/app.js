@@ -352,6 +352,28 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
+    getDisplayedPages() {
+      const total = this.getTotalPages();
+      const current = this.currentPage;
+      const range = 2; // Show 2 pages before and after current
+      
+      let start = Math.max(1, current - range);
+      let end = Math.min(total, current + range);
+      
+      // Adjust if near the start or end
+      if (current <= range) {
+        end = Math.min(total, start + (range * 2));
+      } else if (current > total - range) {
+        start = Math.max(1, end - (range * 2));
+      }
+      
+      const pages = [];
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      return pages;
+    },
+
     // ======================
     // CART ACTION
     // ======================

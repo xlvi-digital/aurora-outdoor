@@ -93,14 +93,16 @@
       </template>
     </div>
 
-    <div class="pagination" x-show="getTotalPages() > 1">
-      <button class="btn btn-outline btn-sm" :disabled="currentPage === 1" @click="previousPage()">&laquo;</button>
-      <template x-for="page in Array.from({length: getTotalPages()}, (_, i) => i + 1)" :key="page">
-        <button type="button" class="btn btn-outline btn-sm" :class="{ active: currentPage === page }"
-          @click="currentPage = page" x-text="page"></button>
-      </template>
-      <button class="btn btn-outline btn-sm" :disabled="currentPage === getTotalPages()"
-        @click="nextPage()">&raquo;</button>
+    <div class="pagination-container">
+      <div class="pagination" x-show="getTotalPages() > 1">
+        <button class="btn btn-outline btn-sm" :disabled="currentPage === 1" @click="previousPage()">&laquo;</button>
+        <template x-for="page in getDisplayedPages()" :key="page">
+          <button type="button" class="btn btn-outline btn-sm" :class="{ active: currentPage === page }"
+            @click="currentPage = page" x-text="page"></button>
+        </template>
+        <button class="btn btn-outline btn-sm" :disabled="currentPage === getTotalPages()"
+          @click="nextPage()">&raquo;</button>
+      </div>
     </div>
   </main>
 

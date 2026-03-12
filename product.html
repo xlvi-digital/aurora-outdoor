@@ -82,7 +82,14 @@
       </div>
     </div>
 
-    <div class="product-grid">
+    <!-- SKELETON LOADING -->
+    <div class="skeleton-grid" x-show="isLoading">
+      <template x-for="n in 8">
+        <div class="skeleton-card"></div>
+      </template>
+    </div>
+
+    <div class="product-grid" x-show="!isLoading">
       <template x-for="product in getPaginatedProducts()" :key="product.id">
         <div class="product-card">
           <img :src="product.img" :alt="product.name" @click="openModal(product)" style="cursor:pointer;" />

@@ -51,7 +51,8 @@
   color: var(--color-primary);
 }
 
-.btn-outline:hover {
+.btn-outline:hover,
+.btn-outline.active {
   background: var(--color-primary);
   color: var(--color-white);
 }
@@ -142,6 +143,13 @@ body {
   line-height: 1.6;
   padding-top: 80px;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
 }
 
 /* RESET */
@@ -1035,6 +1043,40 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
+/* ================= LOADING STATE ================= */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.skeleton-card {
+  background: #eee;
+  border-radius: 14px;
+  height: 280px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: skeleton 1.5s infinite;
+}
+
+@keyframes skeleton {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
 /* ================= PRODUCT CLICK ANIMATION ================= */
 .product-animate {
   animation: productBounce 0.4s ease;
@@ -1782,6 +1824,10 @@ body {
 .faq-question:hover {
   color: var(--color-primary);
   background: rgba(11, 79, 138, 0.02);
+}
+
+.cart-main {
+  margin-bottom: 4rem; /* Spacing before footer */
 }
 
 .faq-icon {

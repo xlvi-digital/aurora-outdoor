@@ -165,8 +165,15 @@
             </div>
           </div> -->
 
+          <!-- SKELETON LOADING -->
+          <div class="skeleton-grid" x-show="isLoading">
+            <template x-for="n in 4">
+              <div class="skeleton-card"></div>
+            </template>
+          </div>
+
           <!-- GRID -->
-          <div class="product-grid">
+          <div class="product-grid" x-show="!isLoading">
             <template x-for="cat in categories.filter(c => c.key !== 'all')" :key="cat.key">
               <div class="product-card">
                 <template x-if="products.find(p => p.category === cat.key)">

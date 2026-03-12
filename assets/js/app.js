@@ -31,6 +31,7 @@ document.addEventListener("alpine:init", () => {
     currentPage: 1,
     productsPerPage: 16,
     searchQuery: "",
+    isLoading: false,
     selectedProduct: null,
     isModalOpen: false,
 
@@ -276,7 +277,7 @@ document.addEventListener("alpine:init", () => {
           this.booking.deliveryLng = user.lng || "";
           // Note: distance needs to be recalculated or we can keep it empty to force using full checkout for map if they change address.
           // But for now, we just sync the basic inputs.
-        } catch(e) {}
+        } catch (e) { }
       }
 
       this.$watch("isDrawerOpen", (value) => {
@@ -287,9 +288,28 @@ document.addEventListener("alpine:init", () => {
         }
       });
 
-      this.$watch("activeCategory", () => {
+      // Search & Category Watcher with Debounce & Loading
+      let debounceTimeout;
+      this.$watch("searchQuery", (value) => {
         this.currentPage = 1;
+        clearTimeout(debounceTimeout);
+        this.isLoading = true;
+        debounceTimeout = setTimeout(() => {
+          this.isLoading = false;
+        }, 800);
       });
+
+      this.$watch("activeCategory", (value) => {
+        this.currentPage = 1;
+        this.simulateLoading();
+      });
+    },
+
+    simulateLoading() {
+      this.isLoading = true;
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 800);
     },
 
     saveUserData() {
@@ -356,17 +376,17 @@ document.addEventListener("alpine:init", () => {
       const total = this.getTotalPages();
       const current = this.currentPage;
       const range = 2; // Show 2 pages before and after current
-      
+
       let start = Math.max(1, current - range);
       let end = Math.min(total, current + range);
-      
+
       // Adjust if near the start or end
       if (current <= range) {
         end = Math.min(total, start + (range * 2));
       } else if (current > total - range) {
         start = Math.max(1, end - (range * 2));
       }
-      
+
       const pages = [];
       for (let i = start; i <= end; i++) {
         pages.push(i);
@@ -467,7 +487,7 @@ document.addEventListener("alpine:init", () => {
       const subtotal = this.cart.reduce((total, item) => {
         return total + item.price * item.qty * this.rentalDays;
       }, 0);
-      
+
       return subtotal + this.deliveryFee;
     },
 
@@ -480,20 +500,20 @@ document.addEventListener("alpine:init", () => {
         });
         return;
       }
-      
+
       if (this.booking.deliveryMethod === "antar") {
         if (!this.booking.deliveryAddress || !this.booking.deliveryDistance) {
-            Swal.fire({
-              title: "Alamat Pengantaran",
-              text: "Lengkapi alamat dan estimasi jarak pengantaran.",
-              icon: "error"
-            });
-            return;
+          Swal.fire({
+            title: "Alamat Pengantaran",
+            text: "Lengkapi alamat dan estimasi jarak pengantaran.",
+            icon: "error"
+          });
+          return;
         }
       }
 
       let msg = `⛺ *Halo Admin Aurora Outdoor!* ⛺%0A%0ASaya ingin menyewa alat camping. Berikut detailnya:%0A%0A`;
-      
+
       msg += `*📦 DETAIL BARANG:*%0A`;
       const items = this.cart.map((i) => `▪️ ${i.name} (x${i.qty}) - Rp ${i.price.toLocaleString()}/hari`).join("%0A");
       msg += `${items}%0A%0A`;
@@ -501,7 +521,7 @@ document.addEventListener("alpine:init", () => {
       msg += `*📅 WAKTU SEWA:*%0A`;
       msg += `▪️ Tanggal: ${this.booking.startDate} s/d ${this.booking.endDate}%0A`;
       msg += `▪️ Durasi: ${this.rentalDays} hari%0A%0A`;
-      
+
       msg += `*👤 DATA PEMESAN:*%0A`;
       msg += `▪️ Nama: ${this.booking.name}%0A`;
       msg += `▪️ No WA: ${this.booking.phone}%0A%0A`;
@@ -510,18 +530,18 @@ document.addEventListener("alpine:init", () => {
       msg += `▪️ Pilihan: ${this.booking.deliveryMethod === 'antar' ? '🛵 Diantar ke Alamat' : '🏪 Ambil di Lapak'}%0A`;
 
       if (this.booking.deliveryMethod === 'antar') {
-          msg += `▪️ Estimasi Jarak: ${this.booking.deliveryDistance} km%0A`;
-          msg += `▪️ Alamat Tujuan: ${this.booking.deliveryAddress}%0A`;
-          if (this.booking.deliveryLat && this.booking.deliveryLng) {
-            msg += `▪️ Titik Lokasi (Map): https://www.google.com/maps?q=${this.booking.deliveryLat},${this.booking.deliveryLng}%0A`;
-          }
-          msg += `▪️ Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
+        msg += `▪️ Estimasi Jarak: ${this.booking.deliveryDistance} km%0A`;
+        msg += `▪️ Alamat Tujuan: ${this.booking.deliveryAddress}%0A`;
+        if (this.booking.deliveryLat && this.booking.deliveryLng) {
+          msg += `▪️ Titik Lokasi (Map): https://www.google.com/maps?q=${this.booking.deliveryLat},${this.booking.deliveryLng}%0A`;
+        }
+        msg += `▪️ Biaya Antar: Rp ${this.deliveryFee.toLocaleString()}%0A`;
       }
 
       msg += `%0A-------------------------------%0A`;
       msg += `*💵 TOTAL KESELURUHAN: Rp ${this.totalPrice.toLocaleString()}*%0A`;
       msg += `-------------------------------%0A%0A`;
-          
+
       msg += `Mohon infokan ketersediaan alatnya ya min. Terima kasih! 🙏`;
 
       window.open(`https://wa.me/6281947229060?text=${msg}`, "_blank");
